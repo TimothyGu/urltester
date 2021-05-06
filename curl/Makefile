@@ -6,7 +6,7 @@ CURL_SHA256 := 64bb5288c39f0840c07d077e30d9052e1cbb9fa6c2dc52523824cc859e679145
 CURL_URL := https://github.com/curl/curl/releases/download/curl-$(subst .,_,$(CURL_VERSION))/curl-$(CURL_VERSION).tar.bz2
 
 .PHONY: all
-all: index.html curltest.js curltest.wasm
+all: curltest.js curltest.wasm
 
 # native curltest binary for testing
 curltest: CFLAGS += $(shell pkg-config --cflags libcurl)
@@ -39,7 +39,7 @@ clean:
 
 .PHONY: format
 format:
-	clang-format --style=Google -i curltest.c
+	clang-format --style=Google -i *.h *.c
 
 ####################################################
 

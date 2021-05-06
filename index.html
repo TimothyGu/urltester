@@ -5,20 +5,481 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel=stylesheet integrity=sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0 crossorigin=anonymous>
 <meta name="author" content="Timothy Gu <timothygu99@gmail.com>">
 
-<main class=container>
-  <h1>URL parser testers</h1>
-  <p>Here is a list of testers for various URL parsers:</p>
-  <ul>
-    <li><a href="go/">Go net/url</a></li>
-    <li><a href="curl/">libcurl</a></li>
-    <li><a href="https://jsdom.github.io/whatwg-url/">whatwg-url</a></li>
-    <li><a href="https://jsdom.github.io/whatwg-url/">your current browser</a></li>
-  </ul>
-  <p>They are useful for testing implementation interoperability, in order to
-  improve the <a href="https://url.spec.whatwg.org/">WHATWG URL
-  Standard</a>.</p>
-</main>
-<footer style="position: absolute; top: 1em; right: 1em; text-align: right;">
+<style>
+#output tr.fail {
+  outline: 2px solid var(--bs-danger);
+}
+
+#output td {
+  font-family: var(--bs-font-monospace);
+  word-break: break-word;
+}
+
+#output tbody tr {
+  width: 150px;
+}
+
+#output td+td{
+  width: auto;
+}
+
+#output td.empty-string {
+  font-family: inherit;
+  font-size: smaller;
+  font-style: italic;
+  color: #888;
+  word-break: inherit;
+}
+
+#output td.fail {
+  font-family: inherit;
+  background-color: var(--bs-danger);
+  color: white;
+  word-break: inherit;
+}
+
+#output td.non-string {
+  font-family: inherit;
+  font-style: italic;
+  word-break: inherit;
+}
+
+.fluid-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.table-centered {
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+<header style="float: right; text-align: right; padding: 1em 1em 0 0;">
   <a href="https://github.com/TimothyGu/urltester/blob/main/LICENSE.md">MIT-licensed</a><br>
   <a href="https://github.com/TimothyGu/urltester">Fork me on GitHub!</a>
-</footer>
+</header>
+<main class=container>
+  <h1>URL parser tester</h1>
+  <p>
+    This page parses a given URL with several available parsers, and compares
+    their outputs.
+  </p>
+  <form>
+    <label>URL to parse: <input type=text id=input value="https://timothygu.me/"></label>
+    <label>Base URL: <input type=text id=base></label>
+  </form>
+  <table id=output class=table>
+    <thead>
+      <tr>
+        <td></td>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <h2>Detailed methodology</h2>
+  <p>
+    Parsers sometimes have different names for the same part of a URL. Here, we
+    made things consistent by using names used in the WHATWG <a
+    href="https://url.spec.whatwg.org/#url"><code>URL</code> API</a>, available
+    in browsers and Node.js. This translation may not always be exact; below we
+    document how we figured the output of each parser.
+  </p>
+  <dl class=fluid-grid>
+    <div>
+      <dt>libcurl</dt>
+
+      <dd>
+        We compiled libcurl to WebAssembly and used its <a
+        href="https://everything.curl.dev/libcurl/url">URL API</a> for parsing.
+        While curl does <a href="https://curl.se/docs/url-syntax.html#idna">support</a>
+        Internationalized Domain Names for Applications (IDNA) through the
+        libidn2 library, the functionality is not exposed through the URL
+        API.
+      </dd>
+
+      <dd>
+        When parsing the URL, we use <code>CURLU_NON_SUPPORT_SCHEME</code> and
+        <code>CURLU_URLENCODE</code> flags. When getting individual parts of
+        the URL, we pass <code>0</code> as flags. The part mapping are as
+        follows:
+        <table class="table table-sm table-centered">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th><a href="https://github.com/curl/curl/blob/curl-7_76_1/include/curl/urlapi.h#L53-L65">CURLUPart</a></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>href<td>CURLUPART_URL
+            <tr><td>protocol<td>CURLUPART_SCHEME
+            <tr><td>username<td>CURLUPART_USER
+            <tr><td>password<td>CURLUPART_PASSWORD
+            <tr><td>hostname<td>CURLUPART_HOST
+            <tr><td>port<td>CURLUPART_PORT
+            <tr><td>pathname<td>CURLUPART_PATH
+            <tr><td>search<td>CURLUPART_QUERY
+            <tr><td>hash<td>CURLUPART_FRAGMENT
+          </tbody>
+        </table>
+        Note: We ignore CURLUPART_OPTIONS, <a
+        href="https://curl.se/docs/url-syntax.html#userinfo">used</a> for
+        IMAP/POP3/SMTP "login options." We also do not list CURLUPART_ZONEID
+        separately as it is included in CURLUPART_HOST.
+      </dd>
+    </div>
+    <div>
+      <dt>Go net/url</dt>
+      <dt>Go net/http</dt>
+
+      <dd>
+        We compiled Go's <a href="https://golang.org/pkg/net/url/">net/url
+        package</a> to WebAssembly using Go's <a
+        href="https://github.com/golang/go/wiki/WebAssembly">built-in
+        compiler support</a>. net/url itself does not attempt to support IDNA;
+        however, the built-in <a href="https://golang.org/pkg/net/http/">net/http
+        package</a> will, in fact, automatically convert Unicode labels to
+        ASCII in any requests using the <a
+        href="https://pkg.go.dev/golang.org/x/net/idna">golang.org/x/net/idna
+        package</a>. We allow comparing both mechanisms against other parsers.
+
+      <dd>
+        The part mapping are as follows:
+        <table class="table table-sm table-centered">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th><a href="https://golang.org/pkg/net/url/#URL">url.URL</a> field/method</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>href<td>String()
+            <tr><td>protocol<td>Scheme
+            <tr><td>username<td>User.Username()
+            <tr><td>password<td>User.Password()
+            <tr><td>hostname<td>Hostname()
+            <tr><td>port<td>Port()
+            <tr><td>pathname<td>EscapedPath() or Opaque
+            <tr><td>search<td>RawQuery
+            <tr><td>hash<td>EscapedFragment()
+          </tbody>
+        </table>
+      </dd>
+    </div>
+    <div>
+      <dt>whatwg-url</dt>
+
+      <dd>
+        We load the latest (nightly) bundle of the JavaScript <a
+        href="https://github.com/jsdom/whatwg-url">whatwg-url</a> library,
+        which is also used for its own <a
+        href="https://jsdom.github.io/whatwg-url/">URL Viewer</a> program. This
+        utility is, to a large extent, inspired by URL Viewer. URL part mapping
+        is trivial, as whatwg-url exposes the same properties as a browser
+        <code>URL</code> object.
+      </dd>
+    </div>
+    <div>
+      <dt>your browser</dt>
+
+      <dd>
+        For comparison, we also parse every URL with your own browser's
+        <code>URL</code> class. URL part mapping is trivial, as whatwg-url
+        exposes the same properties as a browser <code>URL</code> object.
+      </dd>
+    </div>
+  </dl>
+</main>
+
+<script>
+  class URLParser extends EventTarget {
+    constructor(href) {
+      super();
+      this.href = href;
+      this.nextID = 1;
+      this.start();
+      this.givenUp = false;
+    }
+
+    start() {
+      this.dispatchEvent(new CustomEvent("initializing"));
+
+      let onInitialized;
+      this.initialized = false;
+      this.ready = new Promise(resolve => {
+        onInitialized = resolve;
+      });
+      this.ready.then(() => {
+        this.initialized = true;
+        this.dispatchEvent(new CustomEvent("initialized"));
+      });
+
+      this.worker = new Worker(this.href);
+      this.promiseResolvers = new Map();
+      this.worker.onmessage = e => {
+        const payload = e.data;
+        if (!payload || !payload.id || !payload.type) {
+          console.error(this.href, "received invalid payload from worker", payload);
+          return;
+        }
+
+        switch (payload.type) {
+          case "initialized":
+            onInitialized();
+            return;
+          case "error":
+            console.error(this.href, "received error", payload.err);
+            if (payload.shouldRestart) {
+              this.restart(payload.err);
+            } else {
+              console.error(this.href, "giving up")
+              this.givenUp = true;
+              this.stop(payload.err);
+            }
+            return;
+          case "parsedURL":
+            const promiseResolver = this.promiseResolvers.get(payload.orig);
+            this.promiseResolvers.delete(payload.orig);
+            if (!promiseResolver) {
+              console.error(this.href, "No promise resolver found");
+              return;
+            }
+            const [promise, resolve, reject] = promiseResolver;
+            if (payload.err !== undefined) {
+              payload.err.output = payload.output;
+              payload.err.version = payload.version;
+              reject(payload.err);
+            } else {
+              resolve(payload);
+            }
+            break;
+          case "ignore":
+            break;
+          default:
+            console.error(this.href, "received invalid payload (unrecognized type)", payload);
+            return;
+        }
+      };
+    }
+
+    stop(ex) {
+      for (const [promise, resolve, reject] of this.promiseResolvers.values()) {
+        reject(ex);
+      }
+      this.worker.terminate();
+      this.dispatchEvent(new CustomEvent("failed"));
+    }
+
+    restart(ex) {
+      console.warn(this.href, "restarting worker");
+      this.stop(ex);
+      this.start();
+    }
+
+    async run(input, base) {
+      const id = this.nextID++;
+      this.worker.postMessage({
+        id,
+        type: "urlToParse",
+        input,
+        base,
+      });
+      let resolve, reject;
+      const prom = new Promise((rs, rj) => {
+        resolve = rs;
+        reject = rj;
+      });
+      this.promiseResolvers.set(id, [prom, resolve, reject]);
+      return prom;
+    }
+  }
+
+  const inputEl = document.getElementById("input");
+  const baseEl = document.getElementById("base");
+  const outputEl = document.getElementById("output");
+
+  const props = [
+    "href", "protocol", "username", "password",
+    "hostname", "port", "pathname", "search",
+    "hash",
+  ];
+  for (const prop of props) {
+    const tbody = outputEl.tBodies[0];
+    const row = document.createElement("tr");
+    row.setAttribute("data-prop", prop);
+    const th = document.createElement("th");
+    th.textContent = prop;
+    th.setAttribute("scope", "row");
+    row.append(th);
+    tbody.append(row);
+  }
+
+  class ParserRenderer {
+    constructor(name, href, index) {
+      this.name = name;
+      this.href = href;
+      this.index = index;
+      this.parser = new URLParser(href);
+
+      const thead = outputEl.tHead;
+      const row = thead.rows[0];
+      let th = row.cells[index + 1];
+      if (!th) {
+        while (row.cells.length < index + 2) {
+          th = document.createElement("th");
+          row.append(th);
+        }
+      }
+
+      if (this.parser.initialized) {
+        th.innerText = name + "\ninitializing";
+      } else {
+        th.innerText = name;
+      }
+
+      this.version = "";
+
+      this.updateTh = () => {
+        let nameAndVersion = name;
+        if (this.version) {
+          nameAndVersion += ` (${this.version})`;
+        }
+        if (this.parser.givenUp) {
+          th.innerText = nameAndVersion + "\nfailed";
+        } else if (this.parser.initialized) {
+          th.innerText = nameAndVersion;
+        } else {
+          th.innerText = nameAndVersion + "\ninitializing";
+        }
+      };
+
+      this.parser.addEventListener("initializing", this.updateTh);
+      this.parser.addEventListener("initialized", this.updateTh);
+      this.parser.addEventListener("failed", this.updateTh);
+    }
+
+    async run(input, base) {
+      if (this.parser.givenUp) {
+        return "failed to start";
+      } else if (!this.parser.initialized) {
+        return "initializing";
+      }
+      try {
+        const { json, version } = await this.parser.run(input, base);
+        if (version) {
+          this.version = version;
+          this.updateTh();
+        }
+        return props.map(prop => json[prop]);
+      } catch (err) {
+        if (err.version) {
+          this.version = err.version;
+          this.updateTh();
+        }
+        return err?.message || err;
+      }
+    }
+  }
+
+  const parsers = new Map([
+    ["libcurl", "curl/worker.js"],
+    ["Go net/url", "go/url/worker.js"],
+    ["Go net/http", "go/http/worker.js"],
+    ["whatwg-url", "whatwg-url/worker.js"],
+    ["your browser", "native/worker.js"],
+  ]);
+
+  const renders = [];
+  for (const [name, href] of parsers) {
+    const render = new ParserRenderer(name, href, renders.length);
+    renders.push(render);
+  }
+
+  async function runAndUpdate() {
+    const input = inputEl.value;
+    const base = baseEl.value || undefined;
+
+    const boxes = await Promise.all(renders.map(render => render.run(input, base)));
+
+    let skipped = 0;
+    for (const box of boxes) {
+      if (!Array.isArray(box)) {
+        skipped++;
+      }
+    }
+
+    const tbody = outputEl.tBodies[0];
+    for (let i = 0; i < tbody.rows.length; i++) {
+      const row = tbody.rows[i];
+      let j = 1;
+      let last = undefined;
+      let mismatch = false;
+      for (const col of boxes) {
+        let str;
+        if (!Array.isArray(col)) {
+          if (i !== 0) {
+            continue;
+          }
+          str = String(col);
+        } else {
+          str = col[i];
+          if (!mismatch) {
+            if (last === undefined) {
+              last = str;
+            } else if (last !== str) {
+              mismatch = true;
+            }
+          }
+        }
+
+        let td = row.cells[j];
+        if (!td) {
+          while (row.cells.length <= j) {
+            td = document.createElement("td");
+            row.append(td);
+          }
+        }
+
+        if (!Array.isArray(col)) {
+          td.innerText = str;
+          td.className = "fail";
+          td.setAttribute("rowspan", props.length);
+        } else if (str === "") {
+          td.innerText = "(empty string)";
+          td.className = "empty-string";
+          td.removeAttribute("rowspan");
+        } else if (typeof str === "string") {
+          td.innerText = str;
+          td.removeAttribute("class");
+          td.removeAttribute("rowspan");
+        } else {
+          td.innerText = str;
+          td.className = "non-string";
+          td.removeAttribute("rowspan");
+        }
+
+        j++;
+      }
+
+      while (j < row.cells.length) {
+        row.removeChild(row.cells[j]);
+      }
+
+      if (mismatch) {
+        row.className = "fail";
+      } else {
+        row.removeAttribute("class");
+      }
+    }
+  }
+
+  runAndUpdate();
+  inputEl.addEventListener("input", runAndUpdate);
+  baseEl.addEventListener("input", runAndUpdate);
+
+  for (const render of renders) {
+    render.parser.ready.then(() => runAndUpdate());
+  }
+</script>
