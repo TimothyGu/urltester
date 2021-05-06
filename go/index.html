@@ -24,7 +24,10 @@
     package. It does so by loading a WebAssembly module compiled from
     native Go code.
   </p>
-  <label>URL to parse: <input type=text id=input value="https://timothygu.me/"></label>
+  <form>
+    <label>URL to parse: <input type=text id=input value="https://timothygu.me/"></label>
+    <label>Base URL: <input type=text id=base></label>
+  </form>
   <pre id=output></pre>
 </main>
 <footer style="position: absolute; top: 1em; right: 1em; text-align: right;">
@@ -39,60 +42,57 @@
     return err;
   }
 
-  let running = false;
-  async function run(url) {
-    if (running) {
-      return "waiting";
-    }
-    running = true;
+  async function run(url, base) {
+    // Copied from wasm_exec.js.
+    global.fullOutput = "";
+    let outputBuf = "";
+    const decoder = new TextDecoder("utf-8");
+    global.fs.writeSync = (fd, buf) => {
+      const decoded = decoder.decode(buf);
+      global.fullOutput += decoded;
+      outputBuf += decoded;
+      const nl = outputBuf.lastIndexOf("\n");
+      if (nl != -1) {
+        console.log(outputBuf.substr(0, nl));
+        outputBuf = outputBuf.substr(nl + 1);
+      }
+      return buf.length;
+    };
+    global.fs.write = (fd, buf, offset, length, position, callback) => {
+      if (offset !== 0 || length !== buf.length || position !== null) {
+        callback(enosys());
+        return;
+      }
+      const n = global.fs.writeSync(fd, buf);
+      callback(null, n);
+    };
 
-    try {
-      // Copied from wasm_exec.js.
-      global.fullOutput = "";
-      let outputBuf = "";
-      const decoder = new TextDecoder("utf-8");
-      global.fs.writeSync = (fd, buf) => {
-        const decoded = decoder.decode(buf);
-        global.fullOutput += decoded;
-        outputBuf += decoded;
-        const nl = outputBuf.lastIndexOf("\n");
-        if (nl != -1) {
-          console.log(outputBuf.substr(0, nl));
-          outputBuf = outputBuf.substr(nl + 1);
-        }
-        return buf.length;
-      };
-      global.fs.write = (fd, buf, offset, length, position, callback) => {
-        if (offset !== 0 || length !== buf.length || position !== null) {
-          callback(enosys());
-          return;
-        }
-        const n = global.fs.writeSync(fd, buf);
-        callback(null, n);
-      };
-
-      const mod = await modProm;
-      const go = new Go();
-      global.go = go;
-      const instance = await WebAssembly.instantiate(mod, go.importObject)
-      go.argv = ["main", url];
-      go.run(instance);
-      return global.fullOutput;
-    } finally {
-      running = false;
+    const mod = await modProm;
+    const go = new Go();
+    global.go = go;
+    const instance = await WebAssembly.instantiate(mod, go.importObject)
+    go.argv = ["main"];
+    if (base) {
+      go.argv.push(`-base=${base}`);
     }
+    go.argv.push(`${url}`);
+    go.run(instance);
+    return global.fullOutput;
   }
 
   const inputEl = document.getElementById("input");
+  const baseEl = document.getElementById("base");
   const outputEl = document.getElementById("output");
 
   let prevRun = null;
   async function runAndUpdate() {
-    console.log("input:", inputEl.value);
+    const input = inputEl.value;
+    const base = baseEl.value;
+
     await prevRun;
     prevRun = (async () => {
       try {
-        const output = await run(inputEl.value);
+        const output = await run(input, base);
         outputEl.innerText = output;
       } catch (ex) {
         outputEl.innerText = ex ? (ex.stack || ex.message || ex) : ex;
@@ -102,4 +102,5 @@
 
   runAndUpdate();
   inputEl.addEventListener("input", runAndUpdate);
+  baseEl.addEventListener("input", runAndUpdate);
 </script>

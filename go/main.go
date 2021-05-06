@@ -1,49 +1,63 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/url"
 	"os"
-	"reflect"
 	"runtime"
 )
 
+var base = flag.String("base", "", "base URL to parse against")
+
+func printURL(u *url.URL) {
+	fmt.Printf("String:   %#v\n", u.String())
+	fmt.Printf("Scheme:   %#v\n", u.Scheme)
+	fmt.Printf("User:     %#v\n", u.User)
+	fmt.Printf("Host:     %#v (%#v, %#v)\n", u.Host, u.Hostname(), u.Port())
+	fmt.Printf("Path:     %#v (raw: %#v; escaped: %#v)\n", u.Path, u.RawPath, u.EscapedPath())
+	fmt.Printf("Opaque:   %#v\n", u.Opaque)
+	if u.RawQuery != "" {
+		fmt.Printf("RawQuery: %#v\n", u.RawQuery)
+	} else if u.ForceQuery {
+		fmt.Printf("RawQuery: %#v (force = true)\n", u.RawQuery)
+	} else {
+		fmt.Printf("RawQuery: nil (force = false)\n")
+	}
+	fmt.Printf("Fragment: %#v (raw: %#v; escaped: %#v)\n", u.Fragment, u.RawFragment, u.EscapedFragment())
+}
+
 func main() {
+	flag.Parse()
+
 	fmt.Printf("Running on %s\n", runtime.Version())
 	fmt.Printf("compiled with %s for %s/%s\n", runtime.Compiler, runtime.GOOS, runtime.GOARCH)
 	fmt.Println()
 
-	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "Usage: %s <url>\n", os.Args[0])
+	if flag.NArg() < 1 {
+		flag.Usage()
 		os.Exit(1)
 	}
 
-	fmt.Printf("parsing %#v\n", os.Args[1])
+	fmt.Printf("parsing %#v\n", flag.Arg(0))
 
-	u, err := url.Parse(os.Args[1])
+	u, err := url.Parse(flag.Arg(0))
 	if err != nil {
 		panic(fmt.Errorf("Failed to parse URL: %w", err))
 	}
-
-	vPtr := reflect.ValueOf(u)
-	tPtr := vPtr.Type()
-	v, t := vPtr.Elem(), tPtr.Elem()
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		fmt.Printf("URL.%s: %#v\n", f.Name, v.Field(i))
-	}
-	for i := 0; i < tPtr.NumMethod(); i++ {
-		m := tPtr.Method(i)
-		if m.Type.NumIn() > 1 {
-			// fmt.Printf("skip URL.%v(): require arguments\n", m.Name)
-			continue
-		} else if m.Type.NumOut() == 0 {
-			// fmt.Printf("skip URL.%v(): no result\n", m.Name)
-			continue
-		} else if m.Type.NumOut() > 1 {
-			// fmt.Printf("skip URL.%v(): multiple results\n", m.Name)
-			continue
+	if *base == "" {
+		printURL(u)
+	} else {
+		fmt.Println()
+		fmt.Printf("parsing base %#v\n", *base)
+		baseURL, err := url.Parse(*base)
+		if err != nil {
+			panic(fmt.Errorf("Failed to parse base URL: %w", err))
 		}
-		fmt.Printf("URL.%s(): %#v\n", m.Name, m.Func.Call([]reflect.Value{vPtr})[0])
+
+		fmt.Println()
+		fmt.Printf("resolving URLs\n")
+		resolved := baseURL.ResolveReference(u)
+		printURL(resolved)
 	}
 }

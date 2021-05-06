@@ -5442,10 +5442,6 @@ var ASM_CONSTS = {
   }
   }
 
-  function _abort() {
-      abort();
-    }
-
   var _emscripten_get_now;if (ENVIRONMENT_IS_NODE) {
     _emscripten_get_now = function() {
       var t = process['hrtime']();
@@ -6237,7 +6233,6 @@ var asmLibraryArg = {
   "__sys_stat64": ___sys_stat64,
   "__sys_uname": ___sys_uname,
   "__sys_unlink": ___sys_unlink,
-  "abort": _abort,
   "clock_gettime": _clock_gettime,
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_resize_heap": _emscripten_resize_heap,

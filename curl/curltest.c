@@ -4,42 +4,95 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+
+static const char *url_strerr(CURLUcode rc) {
+  switch (rc) {
+    case CURLUE_OK:
+      return "OK";
+    case CURLUE_BAD_HANDLE:
+      return "bad handle";
+    case CURLUE_BAD_PARTPOINTER:
+      return "bad part pointer";
+    case CURLUE_MALFORMED_INPUT:
+      return "malformed input";
+    case CURLUE_BAD_PORT_NUMBER:
+      return "bad port number";
+    case CURLUE_UNSUPPORTED_SCHEME:
+      return "unsupported scheme";
+    case CURLUE_URLDECODE:
+      return "urldecode";
+    case CURLUE_OUT_OF_MEMORY:
+      return "out of memory";
+    case CURLUE_USER_NOT_ALLOWED:
+      return "user not allowed";
+    case CURLUE_UNKNOWN_PART:
+      return "unknown part";
+    case CURLUE_NO_SCHEME:
+      return "no scheme";
+    case CURLUE_NO_USER:
+      return "no user";
+    case CURLUE_NO_PASSWORD:
+      return "no password";
+    case CURLUE_NO_OPTIONS:
+      return "no options";
+    case CURLUE_NO_HOST:
+      return "no host";
+    case CURLUE_NO_PORT:
+      return "no port";
+    case CURLUE_NO_QUERY:
+      return "no query";
+    case CURLUE_NO_FRAGMENT:
+      return "no fragment";
+    default:
+      return "unknown error";
+  };
+}
+
+static void print(const char *str) {
+  if (str) {
+    printf("\"%s\"", str);
+  } else {
+    printf("(null)");
+  }
+}
 
 static void get_and_print(CURLU *h, CURLUPart part, CURLUcode no_part,
                           const char *description) {
   char *str = NULL;
   char *decoded_str = NULL;
 
+  if (no_part < 0) {
+    no_part = CURLUE_UNKNOWN_PART;
+  }
+
   CURLUcode rc = curl_url_get(h, part, &str, 0);
-  if (no_part >= 0 && rc == no_part) {
+  if (rc == no_part) {
     str = NULL;
   } else if (rc) {
-    fprintf(stderr, "Failed to get %s: %d\n", description, rc);
+    fprintf(stderr, "Failed to get %s: %s\n", description, url_strerr(rc));
     goto end;
   }
 
-  rc = curl_url_get(h, part, &decoded_str, CURLU_URLDECODE);
-  if (no_part >= 0 && rc == no_part) {
-    decoded_str = NULL;
-  } else if (rc) {
-    fprintf(stderr, "Failed to get %s: %d\n", description, rc);
-    goto end;
+  printf("%s: ", description);
+  print(str);
+
+  if (part != CURLUPART_URL && part != CURLUPART_SCHEME &&
+      part != CURLUPART_PORT) {
+    rc = curl_url_get(h, part, &decoded_str, CURLU_URLDECODE);
+    if (no_part >= 0 && rc == no_part) {
+      decoded_str = NULL;
+    } else if (rc) {
+      fprintf(stderr, "Failed to get %s: %s\n", description, url_strerr(rc));
+      goto end;
+    }
+    printf(" (decoded: ");
+    print(decoded_str);
+    printf(")");
   }
 
-  if (str && decoded_str) {
-    printf("%s:         \"%s\"\n", description, str);
-    printf("%s decoded: \"%s\"\n", description, decoded_str);
-  } else if (!str && decoded_str) {
-    printf("%s:         (null)\n", description);
-    printf("%s decoded: \"%s\"\n", description, decoded_str);
-  } else if (str && !decoded_str) {
-    printf("%s:         \"%s\"\n", description, str);
-    printf("%s decoded: (null)\n", description);
-  } else {
-    printf("%s:         (null)\n", description);
-    printf("%s decoded: (null)\n", description);
-  }
+  printf("\n");
 
 end:
   curl_free(str);
@@ -49,37 +102,50 @@ end:
 static void print_help(const char *argv0) {
   fprintf(stderr,
           "Usage: %s [OPTION]... <URL>\n"
-          " -e     Encode URL components while parsing\n"
-          " -h     Print this help\n",
+          " -b <url> Base URL\n"
+          " -e       Encode URL components while parsing\n"
+          " -h       Print this help\n",
           argv0);
 }
 
 int main(int argc, char *argv[]) {
+  // for main() reentrance in WebAssembly
+  optind = 1;
+
+  char *base_url = NULL;
+  bool encode_url = false;
+  bool failed = false;
+  CURLU *h = NULL;
+
   // Disable icky stdout/err buffering.
   setvbuf(stderr, NULL, _IONBF, 0);
   setvbuf(stdout, NULL, _IONBF, 0);
 
-  bool encode_url = false;
-
   int opt;
-  while ((opt = getopt(argc, argv, "eh")) != -1) {
+  while ((opt = getopt(argc, argv, "b:eh")) != -1) {
     switch (opt) {
+      case 'b':
+        free(base_url);
+        base_url = strdup(optarg);
+        break;
       case 'e':
         encode_url = true;
         break;
       case 'h':
         print_help(argv[0]);
-        return EXIT_SUCCESS;
+        goto end;
       default:
         print_help(argv[0]);
-        return EXIT_FAILURE;
+        failed = true;
+        goto end;
     }
   }
 
   if (optind >= argc) {
     fprintf(stderr, "No URL found\n");
     print_help(argv[0]);
-    return EXIT_FAILURE;
+    failed = true;
+    goto end;
   }
 
   const char *url_to_parse = argv[optind];
@@ -91,14 +157,27 @@ int main(int argc, char *argv[]) {
   }
 
   printf("using %s\n\n", curl_version());
-  printf("parsing \"%s\"\n", url_to_parse);
 
-  CURLU *h = curl_url();
+  h = curl_url();
   CURLUcode rc = CURLUE_OK;
+
+  if (base_url) {
+    printf("parsing base \"%s\"\n", base_url);
+    rc = curl_url_set(h, CURLUPART_URL, base_url, parse_flags);
+    if (rc) {
+      fprintf(stderr, "Failed to parse base URL: %s\n", url_strerr(rc));
+      failed = true;
+      goto end;
+    }
+    printf("\n");
+  }
+
+  printf("parsing \"%s\"\n", url_to_parse);
   rc = curl_url_set(h, CURLUPART_URL, url_to_parse, parse_flags);
   if (rc) {
-    fprintf(stderr, "Failed to parse URL: %d\n", rc);
-    abort();
+    fprintf(stderr, "Failed to parse URL: %s\n", url_strerr(rc));
+    failed = true;
+    goto end;
   }
 
   get_and_print(h, CURLUPART_URL, -1, "roundtripped");
@@ -111,7 +190,10 @@ int main(int argc, char *argv[]) {
   get_and_print(h, CURLUPART_PATH, -1, "path");
   get_and_print(h, CURLUPART_QUERY, CURLUE_NO_QUERY, "query");
   get_and_print(h, CURLUPART_FRAGMENT, CURLUE_NO_FRAGMENT, "fragment");
+  get_and_print(h, CURLUPART_ZONEID, -1, "zone id");
 
+end:
   curl_url_cleanup(h);
-  return EXIT_SUCCESS;
+  free(base_url);
+  return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

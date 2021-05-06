@@ -28,6 +28,7 @@ $(CURL_PREFIX_WASM)/lib/libcurl.a: curl-build/$(notdir $(CURL_URL))
 
 curltest.js: CC := $(EMSCRIPTEN_EXEC) emcc
 curltest.js: CPPFLAGS += -I$(CURL_PREFIX_WASM)/include
+curltest.js: CFLAGS += -s EXIT_RUNTIME=0
 curltest.js: curltest.c $(CURL_PREFIX_WASM)/lib/libcurl.a
 
 curltest.wasm: curltest.js
@@ -35,6 +36,10 @@ curltest.wasm: curltest.js
 .PHONY: clean
 clean:
 	rm -rf curltest.js *.wasm curltest curl-build
+
+.PHONY: format
+format:
+	clang-format --style=Google -i curltest.c
 
 ####################################################
 

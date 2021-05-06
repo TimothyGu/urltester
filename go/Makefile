@@ -10,3 +10,7 @@ main.wasm: $(wildcard *.go)
 .PHONY: clean
 clean:
 	rm -f main.wasm wasm_exec.js
+
+.PHONY: format
+format:
+	go fmt .
