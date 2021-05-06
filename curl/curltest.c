@@ -63,7 +63,8 @@ static void get_and_print(CURLU *h, CURLUPart part, CURLUcode no_part,
   char *str = NULL;
   char *decoded_str = NULL;
 
-  if (no_part < 0) {
+  // ==-1 works regardless of CURLUcode is signed or unsigned (unlike <0).
+  if (no_part == -1) {
     no_part = CURLUE_UNKNOWN_PART;
   }
 
@@ -81,7 +82,7 @@ static void get_and_print(CURLU *h, CURLUPart part, CURLUcode no_part,
   if (part != CURLUPART_URL && part != CURLUPART_SCHEME &&
       part != CURLUPART_PORT) {
     rc = curl_url_get(h, part, &decoded_str, CURLU_URLDECODE);
-    if (no_part >= 0 && rc == no_part) {
+    if (rc == no_part) {
       decoded_str = NULL;
     } else if (rc) {
       fprintf(stderr, "Failed to get %s: %s\n", description, url_strerr(rc));
