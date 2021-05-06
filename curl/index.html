@@ -36,7 +36,6 @@
     }
     args.push(url);
     const saved = stackSave();
-    console.log("saved as", saved);
     try {
       callMain(args);
     } finally {
@@ -76,7 +75,7 @@
   async function runAndUpdate() {
     const input = inputEl.value;
     const base = baseEl.value;
-    const encodeURL = encodeEl.value;
+    const encodeURL = encodeEl.checked;
 
     await prevRun;
     prevRun = (async () => {
