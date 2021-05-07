@@ -78,7 +78,6 @@ async function run(url, base) {
 
   const mod = await modProm;
   const go = new Go();
-  globalThis.go = go;
   const instance = await WebAssembly.instantiate(mod, go.importObject)
   go.argv = ["main"];
   if (base) {

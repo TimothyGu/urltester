@@ -1,8 +1,6 @@
 importScripts("../../common/worker_common.js");
 importScripts("wasm_exec.js");
 
-let nextID = 1;
-
 // Some HTTP servers don't yet set the Content-Type correctly for .wasm,
 // so use WebAssembly.compile rather than WebAssembly.compileStreaming.
 async function compile(respProm) {
@@ -80,7 +78,6 @@ async function run(url, base) {
 
   const mod = await modProm;
   const go = new Go();
-  globalThis.go = go;
   const instance = await WebAssembly.instantiate(mod, go.importObject)
   go.argv = ["main"];
   if (base) {

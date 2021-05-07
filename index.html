@@ -77,7 +77,10 @@
     <h1>URL parser tester</h1>
     <p>
       This page parses a given URL with several available parsers, and compares
-      their outputs.
+      their outputs. To support a variety of programming languages, we make
+      heavy use of WebAssembly. Unfortunately, this may lead to some
+      <strong>random crashes/reloads on Safari</strong>; Firefox and
+      Chromium-based browsers are preferred.
     </p>
     <form>
       <label>URL to parse: <input type=text id=input value="https://timothygu.me/"></label>
@@ -270,6 +273,10 @@
       this.nextID = 1;
       this.start();
       this.givenUp = false;
+
+      this.lastInput = undefined;
+      this.lastBase = undefined;
+      this.lastOutputPromise = undefined;
     }
 
     start() {
@@ -315,7 +322,7 @@
               console.error(this.href, "No promise resolver found");
               return;
             }
-            const [promise, resolve, reject] = promiseResolver;
+            const [promise, resolve, reject, input, base] = promiseResolver;
             if (payload.err !== undefined) {
               payload.err.output = payload.output;
               payload.err.version = payload.version;
@@ -323,6 +330,9 @@
             } else {
               resolve(payload);
             }
+            this.lastInput = input;
+            this.lastBase = base;
+            this.lastOutputPromise = promise;
             break;
           case "ignore":
             break;
@@ -348,6 +358,12 @@
     }
 
     async run(input, base) {
+      if (input === this.lastInput && base === this.lastBase) {
+        try {
+          return await this.lastOutputPromise;
+        } catch {}
+      }
+
       const id = this.nextID++;
       this.worker.postMessage({
         id,
@@ -360,7 +376,7 @@
         resolve = rs;
         reject = rj;
       });
-      this.promiseResolvers.set(id, [prom, resolve, reject]);
+      this.promiseResolvers.set(id, [prom, resolve, reject, input, base]);
       return prom;
     }
   }
@@ -436,12 +452,15 @@
         return "initializing";
       }
       try {
-        const { json, version } = await this.parser.run(input, base);
-        if (version) {
-          this.version = version;
+        const out = await this.parser.run(input, base);
+        if (out.version) {
+          this.version = out.version;
           this.updateTh();
         }
-        return props.map(prop => json[prop]);
+        if (!out.json) {
+          throw new Error(JSON.stringify(out));
+        }
+        return props.map(prop => out.json[prop]);
       } catch (err) {
         if (err.version) {
           this.version = err.version;
@@ -545,11 +564,28 @@
     }
   }
 
+  // Returns a function, that, as long as it continues to be invoked, will not
+  // be triggered. The function will be called after it stops being called for
+  // N milliseconds.
+  // From https://gist.github.com/nmsdvid/8807205
+  function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        timeout = null;
+        func.apply(this, args);
+      }, wait);
+    };
+  }
+
+  const debouncedRunAndUpdate = debounce(runAndUpdate, 200);
+
   runAndUpdate();
-  inputEl.addEventListener("input", runAndUpdate);
-  baseEl.addEventListener("input", runAndUpdate);
+  inputEl.addEventListener("input", debouncedRunAndUpdate);
+  baseEl.addEventListener("input", debouncedRunAndUpdate);
 
   for (const render of renders) {
-    render.parser.ready.then(() => runAndUpdate());
+    render.parser.ready.then(debouncedRunAndUpdate);
   }
 </script>
