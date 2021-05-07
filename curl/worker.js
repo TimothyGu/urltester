@@ -55,8 +55,8 @@ function convertJSON(json) {
     hostname: json.host ?? "",
     port: json.port ?? "",
     pathname: json.path ?? "",
-    search: json.query === null ? "" : "?" + json.query,
-    hash: json.fragment === null ? "" : "#" + json.fragment,
+    search: json.query ? "?" + json.query : "",
+    hash: json.fragment ? "#" + json.fragment : "",
   };
 }
 

@@ -41,7 +41,7 @@ func NewURLJSON(u *url.URL) URLJSON {
 	obj.Host, obj.Hostname, obj.Port = u.Host, u.Hostname(), u.Port()
 	obj.Path, obj.RawPath, obj.EscapedPath = u.Path, u.RawPath, u.EscapedPath()
 	obj.Opaque = u.Opaque
-	if u.ForceQuery {
+	if u.ForceQuery || u.RawQuery != "" {
 		obj.Query = u.Query()
 		obj.RawQuery = &u.RawQuery
 	}

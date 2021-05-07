@@ -46,7 +46,7 @@ function convertJSON(json) {
     hostname: json.Hostname,
     port: json.Port ?? "",
     pathname: json.EscapedPath || json.Opaque,
-    search: json.RawQuery === null ? "" : "?" + json.RawQuery,
+    search: json.RawQuery ? "?" + json.RawQuery : "",
     hash: json.EscapedFragment ? "#" + json.EscapedFragment : "",
   };
 }
