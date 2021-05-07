@@ -46,8 +46,9 @@
 
 .fluid-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(max(40ch, 40%), 1fr));
   gap: 10px;
+  grid-auto-flow: row dense;
 }
 
 .table-centered {
@@ -55,142 +56,210 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+@media (max-width: 767.98px) {
+  .table-responsive {
+    font-size: 0.95em;
+  }
+  /* Same as .table-sm. */
+  .table-responsive > :not(caption) > * > * {
+    padding: .25rem .25rem;
+  }
+}
 </style>
 
 <header style="float: right; text-align: right; padding: 1em 1em 0 0;">
   <a href="https://github.com/TimothyGu/urltester/blob/main/LICENSE.md">MIT-licensed</a><br>
   <a href="https://github.com/TimothyGu/urltester">Fork me on GitHub!</a>
 </header>
-<main class=container>
-  <h1>URL parser tester</h1>
-  <p>
-    This page parses a given URL with several available parsers, and compares
-    their outputs.
-  </p>
-  <form>
-    <label>URL to parse: <input type=text id=input value="https://timothygu.me/"></label>
-    <label>Base URL: <input type=text id=base></label>
-  </form>
-  <table id=output class=table>
-    <thead>
-      <tr>
-        <td></td>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <h2>Detailed methodology</h2>
-  <p>
-    Parsers sometimes have different names for the same part of a URL. Here, we
-    made things consistent by using names used in the WHATWG <a
-    href="https://url.spec.whatwg.org/#url"><code>URL</code> API</a>, available
-    in browsers and Node.js. This translation may not always be exact; below we
-    document how we figured the output of each parser.
-  </p>
-  <dl class=fluid-grid>
-    <div>
-      <dt>libcurl</dt>
+<main>
+  <div class=container>
+    <h1>URL parser tester</h1>
+    <p>
+      This page parses a given URL with several available parsers, and compares
+      their outputs.
+    </p>
+    <form>
+      <label>URL to parse: <input type=text id=input value="https://timothygu.me/"></label>
+      <label>Base URL: <input type=text id=base></label>
+    </form>
+  </div>
+  <div class=container-xl>
+    <table id=output class="table table-responsive">
+      <thead>
+        <tr>
+          <td></td>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class=container>
+    <h2>Detailed methodology</h2>
+    <p>
+      Parsers sometimes have different names for the same part of a URL. Here, we
+      made things consistent by using names used in the <abbr
+      title="Web Hypertext Application Technology Working Group">WHATWG</abbr> <a
+      href="https://url.spec.whatwg.org/#url"><code>URL</code> API</a>, available
+      in browsers and Node.js. This translation may not always be exact; below we
+      document how we figured the output of each parser.
+    </p>
+    <dl class=fluid-grid>
+      <div>
+        <dt>libcurl</dt>
 
-      <dd>
-        We compiled libcurl to WebAssembly and used its <a
-        href="https://everything.curl.dev/libcurl/url">URL API</a> for parsing.
-        While curl does <a href="https://curl.se/docs/url-syntax.html#idna">support</a>
-        Internationalized Domain Names for Applications (IDNA) through the
-        libidn2 library, the functionality is not exposed through the URL
-        API.
-      </dd>
+        <dd>
+          This is libcurl's <a href="https://everything.curl.dev/libcurl/url">URL
+          API</a>. curl uses <a
+          href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a> as
+          the basis for its parser, with some features of the <abbr
+          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
+          URL Standard mixed in, as detailed on its <a
+          href="https://curl.se/docs/url-syntax.html">URL Syntax</a> documentation page.
+          We created a simple C application "frontend" for the API and compiled
+          it to WebAssembly using Emscripten. While curl does <a
+          href="https://curl.se/docs/url-syntax.html#idna">support</a>
+          <abbr title="Internationalized Domain Names for Applications">IDNA</abbr>
+          through the libidn2 library, the functionality is not exposed through
+          the URL API.
+        </dd>
 
-      <dd>
-        When parsing the URL, we use <code>CURLU_NON_SUPPORT_SCHEME</code> and
-        <code>CURLU_URLENCODE</code> flags. When getting individual parts of
-        the URL, we pass <code>0</code> as flags. The part mapping are as
-        follows:
-        <table class="table table-sm table-centered">
-          <thead>
-            <tr>
-              <th>Property</th>
-              <th><a href="https://github.com/curl/curl/blob/curl-7_76_1/include/curl/urlapi.h#L53-L65">CURLUPart</a></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>href<td>CURLUPART_URL
-            <tr><td>protocol<td>CURLUPART_SCHEME
-            <tr><td>username<td>CURLUPART_USER
-            <tr><td>password<td>CURLUPART_PASSWORD
-            <tr><td>hostname<td>CURLUPART_HOST
-            <tr><td>port<td>CURLUPART_PORT
-            <tr><td>pathname<td>CURLUPART_PATH
-            <tr><td>search<td>CURLUPART_QUERY
-            <tr><td>hash<td>CURLUPART_FRAGMENT
-          </tbody>
-        </table>
-        Note: We ignore CURLUPART_OPTIONS, <a
-        href="https://curl.se/docs/url-syntax.html#userinfo">used</a> for
-        IMAP/POP3/SMTP "login options." We also do not list CURLUPART_ZONEID
-        separately as it is included in CURLUPART_HOST.
-      </dd>
-    </div>
-    <div>
-      <dt>Go net/url</dt>
-      <dt>Go net/http</dt>
+        <dd>
+          When parsing the URL, we use <code>CURLU_<wbr>NON_<wbr>SUPPORT_<wbr>SCHEME</code>
+          and <code>CURLU_<wbr>URLENCODE</code> flags. When getting individual
+          parts of the URL, we pass <code>0</code> as flags. The part mapping are
+          as follows:
+          <table class="table table-sm table-centered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th><a href="https://github.com/curl/curl/blob/curl-7_76_1/include/curl/urlapi.h#L53-L65">CURLUPart</a></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>href<td>CURLUPART_URL
+              <tr><td>protocol<td>CURLUPART_SCHEME
+              <tr><td>username<td>CURLUPART_USER
+              <tr><td>password<td>CURLUPART_PASSWORD
+              <tr><td>hostname<td>CURLUPART_HOST
+              <tr><td>port<td>CURLUPART_PORT
+              <tr><td>pathname<td>CURLUPART_PATH
+              <tr><td>search<td>CURLUPART_QUERY
+              <tr><td>hash<td>CURLUPART_FRAGMENT
+            </tbody>
+          </table>
+          Note: We ignore <code>CURLUPART_<wbr>OPTIONS</code>, <a
+          href="https://curl.se/docs/url-syntax.html#userinfo">used</a> for
+          IMAP/<wbr>POP3/<wbr>SMTP "login options." We also do not list
+          <code>CURLUPART_<wbr>ZONEID</code> separately as it is included in
+          <code>CURLUPART_<wbr>HOST</code>.
+        </dd>
+      </div>
+      <div>
+        <dt>Go net/url</dt>
+        <dt>Go net/http</dt>
 
-      <dd>
-        We compiled Go's <a href="https://golang.org/pkg/net/url/">net/url
-        package</a> to WebAssembly using Go's <a
-        href="https://github.com/golang/go/wiki/WebAssembly">built-in
-        compiler support</a>. net/url itself does not attempt to support IDNA;
-        however, the built-in <a href="https://golang.org/pkg/net/http/">net/http
-        package</a> will, in fact, automatically convert Unicode labels to
-        ASCII in any requests using the <a
-        href="https://pkg.go.dev/golang.org/x/net/idna">golang.org/x/net/idna
-        package</a>. We allow comparing both mechanisms against other parsers.
+        <dd>
+          This is Go's built-in <a href="https://golang.org/pkg/net/url/">net/url
+          package</a>. The parser is based on <a
+          href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a>, with
+          some compatibility fixes. We compiled it to WebAssembly using Go's <a
+          href="https://github.com/golang/go/wiki/WebAssembly">built-in compiler
+          support</a>. net/url itself does not support <abbr
+          title="Internationalized Domain Names for Applications">IDNA</abbr>,
+          but the built-in <a href="https://golang.org/pkg/net/http/">net/http
+          package</a> does through the <a
+          href="https://pkg.go.dev/golang.org/x/net/idna">golang.org/<wbr>x/<wbr>net/<wbr>idna
+          package</a>. We added a "Go net/http" entry to emulate how net/http
+          handles a URL.
 
-      <dd>
-        The part mapping are as follows:
-        <table class="table table-sm table-centered">
-          <thead>
-            <tr>
-              <th>Property</th>
-              <th><a href="https://golang.org/pkg/net/url/#URL">url.URL</a> field/method</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>href<td>String()
-            <tr><td>protocol<td>Scheme
-            <tr><td>username<td>User.Username()
-            <tr><td>password<td>User.Password()
-            <tr><td>hostname<td>Hostname()
-            <tr><td>port<td>Port()
-            <tr><td>pathname<td>EscapedPath() or Opaque
-            <tr><td>search<td>RawQuery
-            <tr><td>hash<td>EscapedFragment()
-          </tbody>
-        </table>
-      </dd>
-    </div>
-    <div>
-      <dt>whatwg-url</dt>
+        <dd>
+          The part mapping are as follows:
+          <table class="table table-sm table-centered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th><a href="https://golang.org/pkg/net/url/#URL">url.URL</a> field/method</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>href<td>String()
+              <tr><td>protocol<td>Scheme
+              <tr><td>username<td>User.Username()
+              <tr><td>password<td>User.Password()
+              <tr><td>hostname<td>Hostname()
+              <tr><td>port<td>Port()
+              <tr><td>pathname<td>EscapedPath() or Opaque
+              <tr><td>search<td>RawQuery
+              <tr><td>hash<td>EscapedFragment()
+            </tbody>
+          </table>
+        </dd>
+      </div>
+      <div>
+        <dt>Rust url</dt>
 
-      <dd>
-        We load the latest (nightly) bundle of the JavaScript <a
-        href="https://github.com/jsdom/whatwg-url">whatwg-url</a> library,
-        which is also used for its own <a
-        href="https://jsdom.github.io/whatwg-url/">URL Viewer</a> program. This
-        utility is, to a large extent, inspired by URL Viewer. URL part mapping
-        is trivial, as whatwg-url exposes the same properties as a browser
-        <code>URL</code> object.
-      </dd>
-    </div>
-    <div>
-      <dt>your browser</dt>
+        <dd>
+          This is Rust's <a href="https://docs.rs/url/">url</a> crate, created by
+          the Servo Project. It should be highly compatible with the <abbr
+          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
+          URL Standard, and has complete <abbr
+          title="Internationalized Domain Names for Applications">IDNA</abbr>
+          support. We compiled it to WebAssembly using <a
+          href="https://rustwasm.github.io/wasm-pack/">wasm-pack</a> and <a
+          href="https://rustwasm.github.io/docs/wasm-bindgen/">wasm-bindgen</a>.
+        </dd>
 
-      <dd>
-        For comparison, we also parse every URL with your own browser's
-        <code>URL</code> class. URL part mapping is trivial, as whatwg-url
-        exposes the same properties as a browser <code>URL</code> object.
-      </dd>
-    </div>
-  </dl>
+        <dd>
+          The part mapping are as follows:
+          <table class="table table-sm table-centered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th><a href="https://docs.rs/url/2.2.1/url/struct.Url.html">url::Url</a> method</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>href<td>as_str()
+              <tr><td>protocol<td>scheme()
+              <tr><td>username<td>username()
+              <tr><td>password<td>password()
+              <tr><td>hostname<td>host_str()
+              <tr><td>port<td>port()
+              <tr><td>pathname<td>path()
+              <tr><td>search<td>query()
+              <tr><td>hash<td>fragment()
+            </tbody>
+          </table>
+        </dd>
+      </div>
+      <div>
+        <dt>whatwg-url</dt>
+
+        <dd>
+          This is the JavaScript <a
+          href="https://github.com/jsdom/whatwg-url">whatwg-url</a> library,
+          designed from scratch to be a reference implementation of the <abbr
+          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
+          URL Standard. We load the latest (nightly) bundle of the JavaScript <a
+          href="https://github.com/jsdom/whatwg-url">whatwg-url</a> library,
+          which is also used for its own <a
+          href="https://jsdom.github.io/whatwg-url/">URL Viewer</a> program. This
+          utility is, to a large extent, inspired by URL Viewer. URL part mapping
+          is trivial, as whatwg-url exposes the same properties as a browser
+          <code>URL</code> object.
+        </dd>
+
+        <dt>your browser</dt>
+
+        <dd>
+          For comparison, we also parse every URL with your own browser's
+          <code>URL</code> class. URL part mapping is trivial, as whatwg-url
+          exposes the same properties as a browser <code>URL</code> object.
+        </dd>
+      </div>
+    </dl>
+  </div>
 </main>
 
 <script>
@@ -387,6 +456,7 @@
     ["libcurl", "curl/worker.js"],
     ["Go net/url", "go/url/worker.js"],
     ["Go net/http", "go/http/worker.js"],
+    ["Rust url", "rust/urltest/worker.js"],
     ["whatwg-url", "whatwg-url/worker.js"],
     ["your browser", "native/worker.js"],
   ]);
