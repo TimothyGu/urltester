@@ -1,4 +1,4 @@
-importScripts("../../common/worker_common.js");
+importScripts("../common/worker_common.js");
 importScripts("wasm_exec.js");
 
 // Defines if we should convert IDNs to ASCII format.
