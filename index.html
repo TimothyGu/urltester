@@ -130,8 +130,8 @@
         <dd>
           When parsing the URL, we use <code>CURLU_<wbr>NON_<wbr>SUPPORT_<wbr>SCHEME</code>
           and <code>CURLU_<wbr>URLENCODE</code> flags. When getting individual
-          parts of the URL, we pass <code>0</code> as flags. The part mapping are
-          as follows:
+          parts of the URL, we pass <code>0</code> as flags. The part mappings
+          are as follows:
           <table class="table table-sm table-centered">
             <thead>
               <tr>
@@ -177,7 +177,7 @@
           handles a URL.
 
         <dd>
-          The part mapping are as follows:
+          The part mappings are as follows:
           <table class="table table-sm table-centered">
             <thead>
               <tr>
@@ -200,6 +200,56 @@
         </dd>
       </div>
       <div>
+        <dt>spec-url</dt>
+        <dt>spec-url absolute</dt>
+
+        <dd>
+          This is the JavaScript <a
+          href="https://github.com/alwinb/spec-url">spec-url</a> library, a
+          reference implementation of Alwin Blok's <a
+          href="https://alwinb.github.io/url-specification/">URL
+          Specification</a>. Blok's specification is designed to be a
+          rephrasing of the <abbr
+          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
+          URL Standard in more theoretic terms. We used Browserify to generate
+          a standalone bundle for the library.
+        </dd>
+
+        <dd>
+          The <em>absolute</em> variant optimizes for use of the input string
+          as an "absolute URL," at the risk of losing some information.
+          Concretely, the absolute variant always <a
+          href="https://alwinb.github.io/url-specification/#reference-resolution">forces</a>
+          the parser output. The absolute variant is closer to how the <abbr
+          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
+          URL Standard operates, while the normal variant is closer to how Go's
+          net/url operates.
+        </dd>
+
+        <dd>
+          The part mappings are derived from Blok's specification:
+          <table class="table table-sm table-centered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Field/function</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>href<td>print()
+              <tr><td>protocol<td>scheme
+              <tr><td>username<td>username
+              <tr><td>password<td>password
+              <tr><td>hostname<td>host
+              <tr><td>port<td>port
+              <tr><td>pathname<td>root + (dirs &amp;&amp; (dirs.join(/) + /)) + file
+              <tr><td>search<td>query
+              <tr><td>hash<td>hash
+            </tbody>
+          </table>
+        </dd>
+      </div>
+      <div>
         <dt>Rust url</dt>
 
         <dd>
@@ -214,7 +264,7 @@
         </dd>
 
         <dd>
-          The part mapping are as follows:
+          The part mappings are as follows:
           <table class="table table-sm table-centered">
             <thead>
               <tr>
@@ -237,20 +287,6 @@
         </dd>
       </div>
       <div>
-        <dt>spec-url</dt>
-
-        <dd>
-          This is the JavaScript <a
-          href="https://github.com/alwinb/spec-url">spec-url</a> library, a
-          reference implementation of Alwin Blok's <a
-          href="https://alwinb.github.io/url-specification/">URL
-          Specification</a>. Blok's specification is designed to be a
-          rephrasing of the <abbr
-          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
-          URL Standard in more theoretic terms. We used Browserify to generate
-          a standalone bundle for the library.
-        </dd>
-
         <dt>whatwg-url</dt>
 
         <dd>
@@ -266,7 +302,8 @@
           is trivial, as whatwg-url exposes the same properties as a browser
           <code>URL</code> object.
         </dd>
-
+      </div>
+      <div>
         <dt>your browser</dt>
 
         <dd>
@@ -490,6 +527,7 @@
     ["Go net/url", "go/url/worker.js"],
     ["Go net/http", "go/http/worker.js"],
     ["spec-url", "spec-url/worker.js"],
+    ["spec-url absolute", "spec-url/worker-absolute.js"],
     ["Rust url", "rust/urltest/worker.js"],
     ["whatwg-url", "whatwg-url/worker.js"],
     ["your browser", "native/worker.js"],
