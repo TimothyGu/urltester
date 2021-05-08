@@ -8,89 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "json_object.h"
 #include "string_builder.h"
-
-struct json_object {
-  struct string_builder builder;
-  bool first;
-};
-
-static struct json_object new_json_object(void) {
-  return (struct json_object){
-      .builder = new_string_builder(0),
-      .first = true,
-  };
-}
-
-static void json_append_str(struct string_builder *builder, const char *str) {
-  append_char(builder, '"');
-  while (*str != '\0') {
-    switch (*str) {
-      case '"':
-        append_str(builder, "\\\"");
-        break;
-      case '\\':
-        append_str(builder, "\\\\");
-        break;
-      case '\b':
-        append_str(builder, "\\b");
-        break;
-      case '\f':
-        append_str(builder, "\\f");
-        break;
-      case '\n':
-        append_str(builder, "\\n");
-        break;
-      case '\r':
-        append_str(builder, "\\r");
-        break;
-      case '\t':
-        append_str(builder, "\\t");
-        break;
-      default:
-        if ((unsigned char)*str < 0x20) {
-          append_str(builder, "\\u");
-          char buf[10];
-          ssize_t len = snprintf(buf, sizeof(buf), "%.2x", *str);
-          append_mem(builder, buf, len);
-        } else {
-          append_char(builder, *str);
-        }
-        break;
-    }
-    str++;
-  }
-  append_char(builder, '"');
-}
-
-static void add_key(struct json_object *obj, const char *key,
-                    const char *value) {
-  assert(key);
-  if (obj->first) {
-    append_char(&obj->builder, '{');
-    obj->first = false;
-  } else {
-    append_char(&obj->builder, ',');
-  }
-  json_append_str(&obj->builder, key);
-  append_char(&obj->builder, ':');
-  if (value) {
-    json_append_str(&obj->builder, value);
-  } else {
-    append_str(&obj->builder, "null");
-  }
-}
-
-static char *finalize_object(struct json_object *obj) {
-  if (obj->first) {
-    append_char(&obj->builder, '{');
-    obj->first = false;
-  }
-  append_char(&obj->builder, '}');
-  char *buf = release_builder(&obj->builder);
-  obj->first = true;
-  return buf;
-}
 
 static const char *url_strerr(CURLUcode rc) {
   switch (rc) {
@@ -207,7 +126,7 @@ static void get_and_print_json(struct json_object *obj, CURLU *h,
     goto end;
   }
 
-  add_key(obj, description, str);
+  add_key(obj, description, str, -1);
 
   if (part != CURLUPART_URL && part != CURLUPART_SCHEME &&
       part != CURLUPART_PORT) {
@@ -224,7 +143,7 @@ static void get_and_print_json(struct json_object *obj, CURLU *h,
     append_str(&decoded_key_builder, description);
     append_str(&decoded_key_builder, "_decoded");
     decoded_key = release_builder(&decoded_key_builder);
-    add_key(obj, decoded_key, decoded_str);
+    add_key(obj, decoded_key, decoded_str, -1);
   }
 
 end:
@@ -238,6 +157,7 @@ end:
 
 static void print_json(CURLU *h) {
   struct json_object obj = new_json_object();
+
   get_and_print_json(&obj, h, CURLUPART_URL, -1, "href");
   get_and_print_json(&obj, h, CURLUPART_SCHEME, CURLUE_NO_SCHEME, "scheme");
   get_and_print_json(&obj, h, CURLUPART_USER, CURLUE_NO_USER, "user");
@@ -252,7 +172,7 @@ static void print_json(CURLU *h) {
                      "fragment");
   get_and_print_json(&obj, h, CURLUPART_ZONEID, -1, "zone_id");
 
-  char *json_str = finalize_object(&obj);
+  char *json_str = finalize_json_object(&obj);
   printf("JSON:%s\n", json_str);
   free(json_str);
   json_str = NULL;

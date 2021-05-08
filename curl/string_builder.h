@@ -1,3 +1,6 @@
+#ifndef STRING_BUILDER_H
+#define STRING_BUILDER_H
+
 #include <assert.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -59,6 +62,13 @@ static inline void append_str(struct string_builder *builder, const char *str) {
   append_mem(builder, str, strlen(str));
 }
 
+static inline void free_builder(struct string_builder *builder) {
+  free(builder->buf);
+  builder->buf = NULL;
+  builder->len = 0;
+  builder->cap = 0;
+}
+
 static inline char *release_builder(struct string_builder *builder) {
   append_char(builder, '\0');
   char *buf = builder->buf;
@@ -67,3 +77,5 @@ static inline char *release_builder(struct string_builder *builder) {
   builder->cap = 0;
   return buf;
 }
+
+#endif  // STRING_BUILDER_H
