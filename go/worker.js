@@ -1,6 +1,11 @@
 importScripts("../../common/worker_common.js");
 importScripts("wasm_exec.js");
 
+// Defines if we should convert IDNs to ASCII format.
+//
+// This is customized by worker-idna.js.
+global.USE_IDNA = false;
+
 // Some HTTP servers don't yet set the Content-Type correctly for .wasm,
 // so use WebAssembly.compile rather than WebAssembly.compileStreaming.
 async function compile(respProm) {
@@ -83,6 +88,9 @@ async function run(url, base) {
   if (base) {
     go.argv.push(`-base=${base}`);
   }
+  if (USE_IDNA) {
+    go.argv.push("-idna");
+  }
   go.argv.push(`${url}`);
   go.run(instance);
 
@@ -119,11 +127,11 @@ self.onmessage = async e => {
 
   switch (payload.type) {
     case "urlToParse": {
-      const { input, base } = payload;
+      const { input, base, options } = payload;
       await prevRun;
       prevRun = (async () => {
 	try {
-	  const { output, json, version } = await run(input, base);
+	  const { output, json, version } = await run(input, base, options);
 	  postMessage({
 	    id: nextID++,
 	    type: "parsedURL",

@@ -1,4 +1,4 @@
-module go.timothygu.me/net/urltester
+module go.timothygu.me/net/urltester/url
 
 go 1.16
 
