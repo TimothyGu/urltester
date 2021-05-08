@@ -51,8 +51,8 @@ function convertJSON(url) {
   return {
     href: specUrl.print(url),
     protocol: url.scheme === undefined ? "" : url.scheme + ":",
-    username: url.username || "",
-    password: url.password || "",
+    username: url.user || "",
+    password: url.pass || "",
     hostname: url.host || "",
     port: url.port === undefined ? "" : String(url.port),
     pathname: `${url.root || ""}${url.dirs ? url.dirs.join("/") + "/" : ""}${url.file || ""}`,

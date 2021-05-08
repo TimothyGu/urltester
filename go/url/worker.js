@@ -40,7 +40,7 @@ function convertJSON(json) {
   }
   return {
     href: json.Href,
-    protocol: json.Scheme + ":",
+    protocol: json.Scheme ? json.Scheme + ":" : "",
     username: json.Username ?? "",
     password: json.Password ?? "",
     hostname: json.Hostname,
