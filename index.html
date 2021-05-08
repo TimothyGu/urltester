@@ -237,6 +237,20 @@
         </dd>
       </div>
       <div>
+        <dt>spec-url</dt>
+
+        <dd>
+          This is the JavaScript <a
+          href="https://github.com/alwinb/spec-url">spec-url</a> library, a
+          reference implementation of Alwin Blok's <a
+          href="https://alwinb.github.io/url-specification/">URL
+          Specification</a>. Blok's specification is designed to be a
+          rephrasing of the <abbr
+          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
+          URL Standard in more theoretic terms. We used Browserify to generate
+          a standalone bundle for the library.
+        </dd>
+
         <dt>whatwg-url</dt>
 
         <dd>
@@ -475,6 +489,7 @@
     ["libcurl", "curl/worker.js"],
     ["Go net/url", "go/url/worker.js"],
     ["Go net/http", "go/http/worker.js"],
+    ["spec-url", "spec-url/worker.js"],
     ["Rust url", "rust/urltest/worker.js"],
     ["whatwg-url", "whatwg-url/worker.js"],
     ["your browser", "native/worker.js"],
