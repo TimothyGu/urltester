@@ -5,7 +5,8 @@ wasm_exec.js:
 	cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" $@
 
 main.wasm: $(wildcard *.go)
-	GOOS=js GOARCH=wasm go build -o $@ .
+	GOOS=js GOARCH=wasm go build -o temp.wasm .
+	wasm-opt -O temp.wasm -o $@
 
 .PHONY: clean
 clean:
