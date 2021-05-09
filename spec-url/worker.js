@@ -1,13 +1,6 @@
 importScripts("../common/worker_common.js");
 importScripts("spec-url.js", "version.js");
 
-// SHOULD_FORCE essentially optimizes for better new URL() compatibility by
-// forcing every parsed URL, at the expense of losing some information when the
-// parsed URL is used as a base URL.
-//
-// This is customized by worker-absolute.js.
-globalThis.SHOULD_FORCE = false;
-
 postMessage({
   id: nextID++,
   type: "initialized",
@@ -28,7 +21,11 @@ function isResolved(url) {
 }
 
 // This is not yet in the spec-url library.
-function parseResolveAndNormalize(input, base, shouldForce) {
+//
+// shouldForce essentially optimizes for better new URL() compatibility by
+// forcing every parsed URL, at the expense of losing some information when the
+// parsed URL is used as a base URL.
+function parseResolveAndNormalize(input, base, { shouldForce } = {}) {
   let parsedBase;
   let modeHint;
   if (base) {
@@ -70,9 +67,9 @@ self.onmessage = e => {
 
   switch (payload.type) {
     case "urlToParse": {
-      const { input, base } = payload;
+      const { input, base, options } = payload;
       try {
-        const url = parseResolveAndNormalize(input, base, SHOULD_FORCE);
+        const url = parseResolveAndNormalize(input, base, options);
         postMessage({
           id: nextID++,
           type: "parsedURL",

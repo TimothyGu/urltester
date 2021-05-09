@@ -1,11 +1,6 @@
 importScripts("../common/worker_common.js");
 importScripts("wasm_exec.js");
 
-// Defines if we should convert IDNs to ASCII format.
-//
-// This is customized by worker-idna.js.
-global.USE_IDNA = false;
-
 // Some HTTP servers don't yet set the Content-Type correctly for .wasm,
 // so use WebAssembly.compile rather than WebAssembly.compileStreaming.
 async function compile(respProm) {
@@ -56,7 +51,7 @@ function convertJSON(json) {
   };
 }
 
-async function run(url, base) {
+async function run(url, base, { useIDNA = false } = {}) {
   // Copied from wasm_exec.js.
   globalThis.fullOutput = "";
   let outputBuf = "";
@@ -88,7 +83,7 @@ async function run(url, base) {
   if (base) {
     go.argv.push(`-base=${base}`);
   }
-  if (USE_IDNA) {
+  if (useIDNA) {
     go.argv.push("-idna");
   }
   go.argv.push(`${url}`);
