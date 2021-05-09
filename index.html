@@ -78,9 +78,11 @@
     <p>
       This page parses a given URL with several available parsers, and compares
       their outputs. To support a variety of programming languages, we make
-      heavy use of WebAssembly. Unfortunately, this may lead to some
-      <strong>random crashes/reloads on Safari</strong>; Firefox and
-      Chromium-based browsers are preferred.
+      heavy use of <a href="https://developer.mozilla.org/en-US/docs/WebAssembly">WebAssembly</a>
+      and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">Web
+      Workers</a>. Unfortunately, this may lead to some <strong>random
+      crashes/reloads on Safari</strong>; Firefox and Chromium-based browsers
+      are preferred.
     </p>
     <form>
       <label>URL to parse: <input type=text id=input value="https://timothygu.me/"></label>
@@ -200,6 +202,54 @@
         </dd>
       </div>
       <div>
+        <dt>Node.js legacy</dt>
+
+        <dd>
+          This is the Node.js's <a
+          href="https://nodejs.org/dist/latest-v16.x/docs/api/url.html#url_legacy_url_api">legacy
+          URL parser</a>, written in JavaScript based on <a
+          href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a>.
+          Developers have been encouraged to switch to the modern parser based
+          on the <abbr
+          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
+          URL Standard since version 8 (released in 2017). We copied the parser
+          as well as some required internal Node.js source files and bundled
+          them using <a href="http://browserify.org/">Browserify</a> for use
+          here.
+        </dd>
+
+        <dd>
+          Compared to the official Node.js binaries, the version presented here
+          could have some slight differences when handling IDNA. This is since
+          Node.js generally uses ICU4C's IDNA support (which is difficult to
+          compile to WebAssembly), while here we have replaced it with a pure
+          JavaScript implementation <a href="https://github.com/jsdom/tr46">tr46</a>.
+        </dd>
+
+        <dd>
+          The part mappings are as follows:
+          <table class="table table-sm table-centered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th><a href="https://nodejs.org/dist/latest-v16.x/docs/api/url.html#url_legacy_urlobject">Legacy urlObject</a> property</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>href<td>href
+              <tr><td>protocol<td>protocol
+              <tr><td>username<td>auth.split(:)[0]
+              <tr><td>password<td>auth.split(:)[1…].join(:)
+              <tr><td>hostname<td>hostname
+              <tr><td>port<td>port
+              <tr><td>pathname<td>pathname
+              <tr><td>search<td>search
+              <tr><td>hash<td>hash
+            </tbody>
+          </table>
+        </dd>
+      </div>
+      <div>
         <dt>spec-url</dt>
         <dt>spec-url absolute</dt>
 
@@ -211,8 +261,19 @@
           Specification</a>. Blok's specification is designed to be a
           rephrasing of the <abbr
           title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
-          URL Standard in more theoretic terms. We used Browserify to generate
-          a standalone bundle for the library.
+          URL Standard in more theoretic terms. We used <a
+          href="http://browserify.org/">Browserify</a> to generate a bundle for
+          the library.
+        </dd>
+
+        <dd>
+          Since spec-url does not yet provide a high-level parsing function, we
+          have to describe what exactly we do here. The actual parsing steps
+          done by this tool is similar to the proposed
+          <a href="https://alwinb.github.io/url-specification/#concluding"><em>parse-resolve-and-normalise</em></a>
+          algorithm in Blok's specification. If no base URL is specified,
+          "web-mode" is used, and the "force resolve" step in the algorithm is
+          not done.
         </dd>
 
         <dd>
@@ -256,7 +317,7 @@
           This is Rust's <a href="https://docs.rs/url/">url</a> crate, created by
           the Servo Project. It should be highly compatible with the <abbr
           title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
-          URL Standard, and has complete <abbr
+          URL Standard, with complete <abbr
           title="Internationalized Domain Names for Applications">IDNA</abbr>
           support. We compiled it to WebAssembly using <a
           href="https://rustwasm.github.io/wasm-pack/">wasm-pack</a> and <a
@@ -302,8 +363,7 @@
           is trivial, as whatwg-url exposes the same properties as a browser
           <code>URL</code> object.
         </dd>
-      </div>
-      <div>
+
         <dt>your browser</dt>
 
         <dd>

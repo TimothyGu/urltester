@@ -1,0 +1,18 @@
+{
+  "name": "urltester",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/TimothyGu/urltester/tree/main/javascript",
+  "author": "Timothy Gu <timothygu99@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
+    "spec-url": "^1.1.0",
+    "tr46": "^2.0.2"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.0"
+  }
+}

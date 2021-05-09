@@ -213,14 +213,56 @@ class ParserRenderer {
 }
 
 const parsers = [
-  { name: "libcurl", worker: "curl/worker.js" },
-  { name: "Go net/url", worker: "go/worker.js" },
-  { name: "Go net/http", worker: "go/worker.js", options: { useIDNA: true } },
-  { name: "spec-url", worker: "spec-url/worker.js" },
-  { name: "spec-url absolute", worker: "spec-url/worker.js", options: { shouldForce: true } },
-  { name: "Rust url", worker: "rust/url/worker.js" },
-  { name: "whatwg-url", worker: "whatwg-url/worker.js" },
-  { name: "your browser", worker: "native/worker.js" },
+  {
+    name: "libcurl",
+    worker: "curl/worker.js",
+    tags: ["c", "rfc3986"],
+  },
+  {
+    name: "Go net/url",
+    worker: "go/worker.js",
+    tags: ["go", "rfc3986"],
+  },
+  {
+    name: "Go net/http",
+    worker: "go/worker.js",
+    options: { useIDNA: true },
+    tags: ["go", "idna", "rfc3986"],
+  },
+  {
+    name: "Node.js legacy",
+    worker: "js/worker.js",
+    options: { parser: "node-legacy" },
+    tags: ["js", "idna", "rfc3986"],
+  },
+  {
+    name: "spec-url",
+    worker: "js/worker.js",
+    options: { parser: "spec-url" },
+    tags: ["js", "idna", "whatwg", "rfc3986"],
+  },
+  {
+    name: "spec-url absolute",
+    worker: "js/worker.js",
+    options: { parser: "spec-url", shouldForce: true },
+    tags: ["js", "idna", "whatwg"],
+  },
+  {
+    name: "Rust url",
+    worker: "rust/url/worker.js",
+    tags: ["rust", "idna", "whatwg"],
+  },
+  {
+    name: "whatwg-url",
+    worker: "whatwg-url/worker.js",
+    tags: ["js", "idna", "whatwg"],
+  },
+  {
+    name: "your browser",
+    worker: "js/worker.js",
+    options: { parser: "native" },
+    tags: ["idna"],
+  },
 ];
 
 const renders = [];
