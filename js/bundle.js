@@ -1,6 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 globalThis.specURL = require("spec-url");
-globalThis.specURLVersion = "1.1.0";
+globalThis.specURLVersion = "1.1.1";
 globalThis.nodeURL = require("./node/url.js");
 globalThis.nodeURLVersion = "16.1.0";
 
@@ -26,7 +26,7 @@ globalThis.browserVersion = (() => {
 })();
 
 },{"./node/url.js":11,"spec-url":34}],2:[function(require,module,exports){
-// From https://raw.githubusercontent.com/nodejs/node/v16.1.0/lib/internal/assert.js.
+// From https://github.com/nodejs/node/raw/v16.1.0/lib/internal/assert.js.
 
 'use strict';
 
@@ -47,7 +47,7 @@ assert.fail = fail;
 module.exports = assert;
 
 },{"./errors":4}],3:[function(require,module,exports){
-// From https://raw.githubusercontent.com/nodejs/node/v16.1.0/lib/internal/constants.js.
+// From https://github.com/nodejs/node/raw/v16.1.0/lib/internal/constants.js.
 
 'use strict';
 
@@ -107,6 +107,8 @@ module.exports = {
 };
 
 },{}],4:[function(require,module,exports){
+// Copied from https://raw.githubusercontent.com/nodejs/node/v16.1.0/lib/internal/errors.js
+
 'use strict';
 
 const {
@@ -405,6 +407,8 @@ module.exports = {
 };
 
 },{}],7:[function(require,module,exports){
+// Copied from https://github.com/nodejs/node/raw/v16.1.0/lib/internal/errors.js
+
 'use strict';
 
 const {
@@ -526,7 +530,7 @@ module.exports = {
 };
 
 },{"./errors":4,"./primordials":6}],8:[function(require,module,exports){
-//From https://raw.githubusercontent.com/nodejs/node/v16.1.0/lib/internal/util.js
+// From https://github.com/nodejs/node/raw/v16.1.0/lib/internal/util.js
 
 'use strict';
 
@@ -543,7 +547,7 @@ module.exports = {
 };
 
 },{}],9:[function(require,module,exports){
-// From https://raw.githubusercontent.com/nodejs/node/v16.1.0/lib/internal/validators.js
+// From https://github.com/nodejs/node/raw/v16.1.0/lib/internal/validators.js
 
 'use strict';
 
@@ -5751,7 +5755,7 @@ const ipv6 = {
 module.exports = { ipv4, ipv6, parseHost }
 },{"./pct":35,"punycode":16}],34:[function(require,module,exports){
 const punycode = require ('punycode')
-const { pct, getProfile } = require ('./pct')
+const { utf8, pct, getProfile, isInSet } = require ('./pct')
 const { parseHost, ipv4, ipv6 } = require ('./host')
 const { setPrototypeOf:setProto, assign } = Object
 
@@ -5761,14 +5765,8 @@ const { setPrototypeOf:setProto, assign } = Object
 // Model
 // -----
 
-const tags = { 
-  scheme:1,
-  user:2, pass:2,
-  host:2, port:2,
-  drive:3,
-  root:4, dirs:5, file:6,
-  query:7, hash:8
-}
+const ords =
+  { scheme:1, auth:2, drive:3, root:4, dir:5, file:6, query:7, hash:8 }
 
 const modes =
   { generic:0, web:1, file:2, special:3 }
@@ -5783,8 +5781,8 @@ const isBase = ({ scheme, host, root }) =>
   scheme != null && (host != null || root != null)
 
 const isResolved = url => {
-  const o = ord (r)
-  return o === tags.scheme || o === tags.hash && r.hash != null
+  const o = ord (url)
+  return o === ords.scheme || o === ords.hash && url.hash != null
 }
 
 const low = str =>
@@ -5794,10 +5792,19 @@ const low = str =>
 // Reference Resolution
 // --------------------
 
+const tags = { 
+  scheme:1,
+  user:2, pass:2,
+  host:2, port:2,
+  drive:3,
+  root:4, dirs:5, file:6,
+  query:7, hash:8
+}
+
 const ord = url => {
   for (const k in tags)
     if (url[k] != null) return tags[k]
-  return tags.hash
+  return ords.hash
 }
 
 const upto = (url, ord) => {
@@ -5841,13 +5848,13 @@ const strictGoto = (url1, url2) => {
 // ### Resolution Operations
 
 const preResolve = (url1, url2) =>
-  isBase (url2) || ord (url1) === tags.hash
+  isBase (url2) || ord (url1) === ords.hash
     ? goto (url2, url1, { strict:false })
     : url1
 
 const resolve = (url1, url2) => {
   const r = preResolve (url1, url2), o = ord (r)
-  if (o === tags.scheme || o === tags.hash && r.hash != null) return r
+  if (o === ords.scheme || o === ords.hash && r.hash != null) return r
   else throw new Error (`Failed to resolve <${print(url1)}> against <${print(url2)}>`)
 }
 
@@ -6218,14 +6225,16 @@ function parseAuth (input, mode, percentCoded = true) {
 // =======
 
 module.exports = {
-  version: '1.1.0',
+  version: '1.1.1',
   isBase, isResolved,
-  ord, upto, goto, preResolve, resolve, force, forceResolve,
+  ords, ord, upto, goto, 
+  preResolve, resolve, force, forceResolve,
   normalise, normalize:normalise,
   percentEncode, percentDecode,
   modes, modeFor, parse, parseAuth, parseHost,
   ipv4, ipv6,
   print,
+  unstable: { utf8, pct, getProfile, isInSet }
 }
 },{"./host":33,"./pct":35,"punycode":16}],35:[function(require,module,exports){
 
@@ -6423,7 +6432,7 @@ isInSet = (cp, { name, minimal, special }) =>
 // Exports
 // =======
 
-module.exports = { utf8, pct, getProfile }
+module.exports = { utf8, pct, getProfile, isInSet }
 },{}],36:[function(require,module,exports){
 "use strict";
 

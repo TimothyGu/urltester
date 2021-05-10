@@ -1,5 +1,5 @@
 globalThis.specURL = require("spec-url");
-globalThis.specURLVersion = "1.1.0";
+globalThis.specURLVersion = "1.1.1";
 globalThis.nodeURL = require("./node/url.js");
 globalThis.nodeURLVersion = "16.1.0";
 
