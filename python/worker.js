@@ -1,4 +1,4 @@
-importScripts("../../common/worker_common.js");
+importScripts("../common/worker_common.js");
 
 const PYODIDE_VERSION = "v0.17.0"
 const PYODIDE_ROOT = `https://cdn.jsdelivr.net/pyodide/${PYODIDE_VERSION}/full`;
