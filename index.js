@@ -182,17 +182,19 @@ class ParserRenderer {
     } else if (!this.parser.initialized) {
       return "initializing";
     }
+    let prom;
     if (input === this.lastInput && base == this.lastBase) {
       try {
-        return await this.lastOutputPromise;
+        prom = Promise.resolve(await this.lastOutputPromise);
       } catch {}
     }
-    try {
-      const prom = this.parser.run(input, base, this.options);
+    if (!prom) {
+      prom = this.parser.run(input, base, this.options);
       this.lastInput = input;
       this.lastBase = base;
       this.lastOutputPromise = prom;
-
+    }
+    try {
       const out = await prom;
       if (out.version) {
         this.version = out.version;
@@ -213,6 +215,11 @@ class ParserRenderer {
 }
 
 const parsers = [
+  {
+    name: "Python urlparse+requests",
+    worker: "python/worker.js",
+    tags: ["python", "rfc3986"],
+  },
   {
     name: "libcurl",
     worker: "curl/worker.js",

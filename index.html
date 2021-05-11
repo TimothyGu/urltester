@@ -89,7 +89,7 @@
       <label>Base URL: <input type=text id=base></label>
     </form>
   </div>
-  <div class=container-xl>
+  <div class=container-fluid>
     <table id=output class="table table-responsive">
       <thead>
         <tr>
@@ -110,6 +110,52 @@
       document how we figured the output of each parser.
     </p>
     <dl class=fluid-grid>
+      <div>
+        <dt>Python urlparse<wbr>+<wbr>requests</dt>
+
+        <dd>
+          This combines Python's built-in <a
+          href="https://docs.python.org/3/library/urllib.parse.html">urllib.parse</a>
+          module with Python library <a
+          href="https://docs.python-requests.org/en/master/">Requests</a>'
+          <code>requote_uri()</code> function. Python's urllib uses various
+          RFCs (primarily <a
+          href="https://www.rfc-editor.org/rfc/rfc1738.html">1738</a> and <a
+          href="https://www.rfc-editor.org/rfc/rfc1808.html">1808</a>) as the
+          basis for its parser. To run Python in the browser, we use <a
+          href="https://pyodide.org/">Pyodide</a>, which compiles Python to
+          WebAssembly.
+        </dd>
+
+        <dd>
+          Since the parser does no normalization by default, we use the popular
+          Requests library's <code>requote_uri()</code> for parity with other
+          parsers listed here. The part mappings are as follows:
+          <table class="table table-sm table-centered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th><a href="https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse">ParseResult</a> properties</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>href<td>geturl()
+              <tr><td>protocol<td>scheme
+              <tr><td>username<td>username
+              <tr><td>password<td>password
+              <tr><td>hostname<td>hostname
+              <tr><td>port<td>port
+              <tr><td>pathname<td>path
+              <tr><td>search<td>query
+              <tr><td>hash<td>fragment
+            </tbody>
+          </table>
+          Note: We ignore the <code>params</code> part, which exists in <a
+          href="https://www.rfc-editor.org/rfc/rfc1738.html">RFC 1738</a> but
+          has no equivalent in other parsers and was removed in <a
+          href="https://www.rfc-editor.org/rfc/rfc3986">RFC 3986</a>.
+        </dd>
+      </div>
       <div>
         <dt>libcurl</dt>
 
@@ -363,7 +409,8 @@
           is trivial, as whatwg-url exposes the same properties as a browser
           <code>URL</code> object.
         </dd>
-
+      </div>
+      <div>
         <dt>your browser</dt>
 
         <dd>
