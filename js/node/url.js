@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v16.1.0/lib/url.js
+// From https://github.com/nodejs/node/raw/v16.2.0/lib/url.js
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
