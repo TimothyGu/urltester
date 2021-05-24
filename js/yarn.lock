@@ -1087,10 +1087,10 @@ source-map@~0.5.3:
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
 
-spec-url@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/spec-url/-/spec-url-1.1.1.tgz#6649d3503800665028470388e9352d754ad53d8c"
-  integrity sha512-T+sSTjR4jKLOv5m7FykDs7Df6T3RAX0a5scfxL31cF8H3Rq5YbKwLua/O5L5uB0MbnhAUbYWWkfvBUSVDZZuyQ==
+spec-url@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/spec-url/-/spec-url-1.2.0.tgz#4e6b3ea02ea78eb1b52bb719315d9b52c40e7eec"
+  integrity sha512-pW5Px0fNx2VXtG3ba4ln+Yb6hz2juTfHeWQ0Y6vsgGbBR7QNg4Tg2/l7Akm8j47M9433IocPVTqhudAs89pzNA==
   dependencies:
     punycode "^2.1.1"
 
@@ -1192,10 +1192,10 @@ timers-browserify@^1.0.1:
   dependencies:
     process "~0.11.0"
 
-tr46@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/tr46/-/tr46-2.0.2.tgz#03273586def1595ae08fedb38d7733cee91d2479"
-  integrity sha512-3n1qG+/5kg+jrbTzwAykB5yRYtQCTqOGKq5U5PE3b0a1/mzo6snDhjGS0zJVJunO0NrT3Dg1MLy5TjWP/UJppg==
+tr46@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/tr46/-/tr46-2.1.0.tgz#fa87aa81ca5d5941da8cbf1f9b749dc969a4e240"
+  integrity sha512-15Ih7phfcdP5YxqiB+iDtLoaTz4Nd35+IiAv0kQ5FNKHzXgdWqPoTIqEDDJmXceQt4JZk6lVPT8lnDlPpGDppw==
   dependencies:
     punycode "^2.1.1"
 
