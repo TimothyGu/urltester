@@ -43,6 +43,7 @@ self.onmessage = e => {
           type: "parsedURL",
           orig: payload.id,
           json: urlToJSON(url),
+          version: "nightly",
         });
       } catch (ex) {
         postMessage({
@@ -50,6 +51,7 @@ self.onmessage = e => {
           type: "parsedURL",
           orig: payload.id,
           err: serializeError(ex),
+          version: "nightly",
         });
       }
       break;
