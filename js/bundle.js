@@ -1,6 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 globalThis.specURL = require("spec-url");
-globalThis.specURLVersion = "1.2.0";
+globalThis.specURLVersion = "1.3.0";
 globalThis.nodeURL = require("./node/url.js");
 globalThis.nodeURLVersion = "16.2.0";
 
@@ -5751,8 +5751,8 @@ const modes =
 const specials =
   { http:1, https:1, ws:1, wss:1, ftp:1, file:2 }
 
-const modeFor = ({ scheme }) =>
-  specials [low (scheme)] || modes.generic
+const modeFor = ({ scheme }, fallback = modes.generic) =>
+  specials [low (scheme)] || fallback
 
 const isBase = ({ scheme, host, root }) =>
   scheme != null && (host != null || root != null)
@@ -5824,13 +5824,13 @@ const strictGoto = (url1, url2) => {
 
 // ### Resolution Operations
 
-const preResolve = (url1, url2) =>
+const preResolve = (url1, url2, options) =>
   isBase (url2) || ord (url1) === ords.hash
-    ? goto (url2, url1, { strict:false })
+    ? goto (url2, url1, options)
     : url1
 
-const resolve = (url1, url2) => {
-  const r = preResolve (url1, url2), o = ord (r)
+const resolve = (url1, url2, options) => {
+  const r = preResolve (url1, url2, options), o = ord (r)
   if (o === ords.scheme || o === ords.hash && r.hash != null) return r
   else throw new Error (`Failed to resolve <${print(url1)}> against <${print(url2)}>`)
 }
@@ -5869,8 +5869,8 @@ const force = url => {
   else return url
 }
 
-const forceResolve = (url1, url2) =>
-  force (resolve (url1, force (url2)))
+const forceResolve = (url1, url2, options) =>
+  force (resolve (url1, force (url2), options))
 
 
 // Normalisation
@@ -5987,7 +5987,7 @@ const _isIp6 = str =>
   str != null && str[0] === '[' && str[str.length-1] === ']'
 
 const profileFor = (url, fallback) => {
-  const special = modeFor (url) & modes.special
+  const special = modeFor (url, fallback) & modes.special
   const minimal = special ? false : !isBase (url)
   return getProfile ({ minimal, special })
 }
@@ -6187,10 +6187,6 @@ function parseAuth (input, mode, percentCoded = true) {
   if (mode === modes.file && (user != null || port != null))
     throw new Error ()
 
-  // Disabled, to allow force to take care of that
-  // if (mode === modes.web && !host)
-  //   throw new Error ('ERR_INVALID_WEB_HOST')
-
   host = parseHost (host, mode, percentCoded)
   const auth = { user, pass, host, port }
   for (const k in auth) if (auth[k] == null) delete auth[k]
@@ -6203,8 +6199,10 @@ function parseAuth (input, mode, percentCoded = true) {
 
 const WHATWGParseResolve = (input, base) => {
   const baseUrl = parse (base)
-  const url = parse (input, modeFor (baseUrl))
-  return percentEncode (normalise (forceResolve (url, baseUrl)))
+  const baseMode = modeFor (baseUrl)
+  const url = parse (input, baseMode)
+  const strict = modeFor (url, baseMode) === modes.generic
+  return percentEncode (normalise (forceResolve (url, baseUrl, { strict })))
 }
 
 
@@ -6212,7 +6210,7 @@ const WHATWGParseResolve = (input, base) => {
 // =======
 
 module.exports = {
-  version: '1.2.0',
+  version: '1.3.0',
   isBase, isResolved,
   ords, ord, upto, goto, 
   preResolve, resolve, force, forceResolve,
@@ -7011,21 +7009,23 @@ function isDataView(value) {
 }
 exports.isDataView = isDataView;
 
+// Store a copy of SharedArrayBuffer in case it's deleted elsewhere
+var SharedArrayBufferCopy = typeof SharedArrayBuffer !== 'undefined' ? SharedArrayBuffer : undefined;
 function isSharedArrayBufferToString(value) {
   return ObjectToString(value) === '[object SharedArrayBuffer]';
 }
-isSharedArrayBufferToString.working = (
-  typeof SharedArrayBuffer !== 'undefined' &&
-  isSharedArrayBufferToString(new SharedArrayBuffer())
-);
 function isSharedArrayBuffer(value) {
-  if (typeof SharedArrayBuffer === 'undefined') {
+  if (typeof SharedArrayBufferCopy === 'undefined') {
     return false;
+  }
+
+  if (typeof isSharedArrayBufferToString.working === 'undefined') {
+    isSharedArrayBufferToString.working = isSharedArrayBufferToString(new SharedArrayBufferCopy());
   }
 
   return isSharedArrayBufferToString.working
     ? isSharedArrayBufferToString(value)
-    : value instanceof SharedArrayBuffer;
+    : value instanceof SharedArrayBufferCopy;
 }
 exports.isSharedArrayBuffer = isSharedArrayBuffer;
 
