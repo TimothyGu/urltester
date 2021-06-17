@@ -54,7 +54,7 @@ function specURLToJSON(url) {
     password: url.pass || "",
     hostname: url.host || "",
     port: url.port === undefined ? "" : String(url.port),
-    pathname: `${url.root || ""}${url.dirs ? url.dirs.join("/") + "/" : ""}${url.file || ""}`,
+    pathname: `${url.drive ? "/" + url.drive : ""}${url.root || ""}${url.dirs ? url.dirs.join("/") + "/" : ""}${url.file || ""}`,
     search: url.query ? "?" + url.query : "",
     hash: url.hash ? "#" + url.hash : "",
   };
