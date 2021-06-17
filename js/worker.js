@@ -37,7 +37,8 @@ function specURLParseResolveAndNormalize(input, base, { shouldForce } = {}) {
   const parsedInput = specURL.parse(input, modeHint);
   let u = parsedInput;
   if (base) {
-    u = specURL.forceResolve(u, parsedBase);
+    const strict = specURL.modeFor(parsedInput, modeHint) === specURL.modes.generic;
+    u = specURL.forceResolve(u, parsedBase, { strict });
   } else if (shouldForce) {
     u = specURL.force(u);
   }
