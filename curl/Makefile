@@ -1,8 +1,8 @@
 EMSCRIPTEN_DOCKER := docker run --rm -v $$(pwd):/src -u $$(id -u):$$(id -g) emscripten/emsdk
 EMSCRIPTEN_EXEC ?= $(EMSCRIPTEN_DOCKER)
 
-CURL_VERSION := 7.77.0
-CURL_SHA256 := 6c0c28868cb82593859fc43b9c8fdb769314c855c05cf1b56b023acf855df8ea
+CURL_VERSION := 7.78.0
+CURL_SHA256 := 98530b317dc95ccb324bbe4f834f07bb642fbc393b794ddf3434f246a71ea44a
 CURL_URL := https://github.com/curl/curl/releases/download/curl-$(subst .,_,$(CURL_VERSION))/curl-$(CURL_VERSION).tar.bz2
 
 .PHONY: all
@@ -17,6 +17,7 @@ CURL_PREFIX_WASM := curl-build/curl-$(CURL_VERSION)/installed/usr/local
 
 curl-build/$(notdir $(CURL_URL)):
 	curl --create-dirs -L -o $@ $(CURL_URL)
+	echo 'SHA256 ($@) = $(CURL_SHA256)' | sha256sum -c
 
 .PHONY: build-curl-wasm
 build-curl-wasm: $(CURL_PREFIX_WASM)/lib/libcurl.a
