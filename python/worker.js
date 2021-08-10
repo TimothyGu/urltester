@@ -1,6 +1,6 @@
 importScripts("../common/worker_common.js");
 
-const PYODIDE_VERSION = "v0.17.0"
+const PYODIDE_VERSION = "v0.18.0"
 const PYODIDE_ROOT = `https://cdn.jsdelivr.net/pyodide/${PYODIDE_VERSION}/full`;
 
 importScripts(`${PYODIDE_ROOT}/pyodide.js`);
@@ -9,7 +9,7 @@ let pyParse;
 let pyVersion;
 
 async function init() {
-  await loadPyodide({ indexURL: PYODIDE_ROOT });
+  const pyodide = await loadPyodide({ indexURL: PYODIDE_ROOT, fullStdLib: false });
   await pyodide.runPythonAsync(`
     from urllib.parse import quote
 
