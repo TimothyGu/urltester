@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v16.2.0/lib/url.js
+// From https://github.com/nodejs/node/raw/v16.6.1/lib/url.js
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -36,6 +36,7 @@ const {
 
 const { toASCII } = require('./internal/idna');
 const { encodeStr, hexTable } = require('./internal/querystring');
+const querystring = require('./querystring');
 
 const {
   ERR_INVALID_ARG_TYPE
@@ -139,8 +140,6 @@ const {
   CHAR_VERTICAL_LINE,
   CHAR_AT,
 } = require('./internal/constants');
-
-const querystring = require('./querystring');
 
 function urlParse(url, parseQueryString, slashesDenoteHost) {
   if (url instanceof Url) return url;

@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v16.2.0/lib/querystring.js
+// From https://github.com/nodejs/node/raw/v16.6.1/lib/querystring.js
 
 // Copyright Joyent, Inc. and other Node contributors.
 //

@@ -22,6 +22,7 @@ module.exports = {
   NumberIsFinite: Number.isFinite,
   NumberPrototypeToString: uncurryThis(Number.prototype.toString),
   ObjectCreate: Object.create,
+  ObjectDefineProperties: Object.defineProperties,
   ObjectDefineProperty: Object.defineProperty,
   ObjectKeys: Object.keys,
   ReflectApply,

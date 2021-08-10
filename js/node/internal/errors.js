@@ -1,6 +1,12 @@
-// Copied from https://raw.githubusercontent.com/nodejs/node/v16.1.0/lib/internal/errors.js
+// Copied from https://raw.githubusercontent.com/nodejs/node/v16.6.1/lib/internal/errors.js
 
 'use strict';
+
+// The whole point behind this internal module is to allow Node.js to no
+// longer be forced to treat every error message change as a semver-major
+// change. The NodeError classes here all expose a `code` property whose
+// value statically and permanently identifies the error. While the error
+// message may change, the code should not.
 
 const {
   ArrayIsArray,
@@ -12,7 +18,7 @@ const {
   ArrayPrototypeSplice,
   ArrayPrototypeUnshift,
   Error,
-  ObjectDefineProperty,
+  ObjectDefineProperties,
   ReflectApply,
   RegExpPrototypeTest,
   SafeMap,
@@ -24,6 +30,8 @@ const {
   TypeError,
   URIError,
 } = require('./primordials');
+
+const kIsNodeError = Symbol('kIsNodeError');
 
 const messages = new SafeMap();
 const codes = {};
@@ -51,19 +59,27 @@ function makeNodeErrorWithCode(Base, key) {
   return function NodeError(...args) {
     const error = new Base();
     const message = getMessage(key, args, error);
-    ObjectDefineProperty(error, 'message', {
-      value: message,
-      enumerable: false,
-      writable: true,
-      configurable: true,
-    });
-    ObjectDefineProperty(error, 'toString', {
-      value() {
-        return `${this.name} [${key}]: ${this.message}`;
+    ObjectDefineProperties(error, {
+      [kIsNodeError]: {
+        value: true,
+        enumerable: false,
+        writable: false,
+        configurable: true,
       },
-      enumerable: false,
-      writable: true,
-      configurable: true,
+      message: {
+        value: message,
+        enumerable: false,
+        writable: true,
+        configurable: true,
+      },
+      toString: {
+        value() {
+          return `${this.name} [${key}]: ${this.message}`;
+        },
+        enumerable: false,
+        writable: true,
+        configurable: true,
+      },
     });
     error.code = key;
     return error;
@@ -115,6 +131,13 @@ module.exports = {
   getMessage,
 };
 
+E('ERR_INTERNAL_ASSERTION', (message) => {
+  const suffix = 'This is caused by either a bug in Node.js ' +
+    'or incorrect usage of Node.js internals.\n' +
+    'Please open an issue with this stack trace at ' +
+    'https://github.com/nodejs/node/issues\n';
+  return message === undefined ? suffix : `${message}\n${suffix}`;
+}, Error);
 E('ERR_INVALID_ARG_TYPE',
   (name, expected, actual) => {
     assert(typeof name === 'string', "'name' must be a string");
@@ -220,11 +243,4 @@ E('ERR_INVALID_ARG_TYPE',
     }
     return msg;
   }, TypeError);
-E('ERR_INTERNAL_ASSERTION', (message) => {
-  const suffix = 'This is caused by either a bug in Node.js ' +
-    'or incorrect usage of Node.js internals.\n' +
-    'Please open an issue with this stack trace at ' +
-    'https://github.com/nodejs/node/issues\n';
-  return message === undefined ? suffix : `${message}\n${suffix}`;
-}, Error);
 E('ERR_INVALID_URI', 'URI malformed', URIError);
