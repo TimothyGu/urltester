@@ -1,12 +1,14 @@
 EMSCRIPTEN_DOCKER := docker run --rm -v $$(pwd):/src -u $$(id -u):$$(id -g) emscripten/emsdk
 EMSCRIPTEN_EXEC ?= $(EMSCRIPTEN_DOCKER)
 
-CURL_VERSION := 7.78.0
-CURL_SHA256 := 98530b317dc95ccb324bbe4f834f07bb642fbc393b794ddf3434f246a71ea44a
+CURL_VERSION := 7.79.0
+CURL_SHA256 := d607a677f473f79f96c964100327125a6204a39d835dc00dab7fc0129b959f42
 CURL_URL := https://github.com/curl/curl/releases/download/curl-$(subst .,_,$(CURL_VERSION))/curl-$(CURL_VERSION).tar.bz2
 
 .PHONY: all
 all: curltest.js curltest.wasm
+
+.DELETE_ON_ERROR:
 
 # native curltest binary for testing
 curltest: CFLAGS += $(shell pkg-config --cflags libcurl)
