@@ -2063,10 +2063,12 @@ var possibleNames = [
 	'Uint8ClampedArray'
 ];
 
+var g = typeof globalThis === 'undefined' ? global : globalThis;
+
 module.exports = function availableTypedArrays() {
 	var out = [];
 	for (var i = 0; i < possibleNames.length; i++) {
-		if (typeof global[possibleNames[i]] === 'function') {
+		if (typeof g[possibleNames[i]] === 'function') {
 			out[out.length] = possibleNames[i];
 		}
 	}
@@ -5321,6 +5323,7 @@ var callBound = require('call-bind/callBound');
 var $toString = callBound('Object.prototype.toString');
 var hasToStringTag = require('has-tostringtag/shams')();
 
+var g = typeof globalThis === 'undefined' ? global : globalThis;
 var typedArrays = availableTypedArrays();
 
 var $indexOf = callBound('Array.prototype.indexOf', true) || function indexOf(array, value) {
@@ -5337,7 +5340,7 @@ var gOPD = require('es-abstract/helpers/getOwnPropertyDescriptor');
 var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
 if (hasToStringTag && gOPD && getPrototypeOf) {
 	forEach(typedArrays, function (typedArray) {
-		var arr = new global[typedArray]();
+		var arr = new g[typedArray]();
 		if (Symbol.toStringTag in arr) {
 			var proto = getPrototypeOf(arr);
 			var descriptor = gOPD(proto, Symbol.toStringTag);
@@ -7860,6 +7863,7 @@ var callBound = require('call-bind/callBound');
 var $toString = callBound('Object.prototype.toString');
 var hasToStringTag = require('has-tostringtag/shams')();
 
+var g = typeof globalThis === 'undefined' ? global : globalThis;
 var typedArrays = availableTypedArrays();
 
 var $slice = callBound('String.prototype.slice');
@@ -7868,8 +7872,8 @@ var gOPD = require('es-abstract/helpers/getOwnPropertyDescriptor');
 var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
 if (hasToStringTag && gOPD && getPrototypeOf) {
 	forEach(typedArrays, function (typedArray) {
-		if (typeof global[typedArray] === 'function') {
-			var arr = new global[typedArray]();
+		if (typeof g[typedArray] === 'function') {
+			var arr = new g[typedArray]();
 			if (Symbol.toStringTag in arr) {
 				var proto = getPrototypeOf(arr);
 				var descriptor = gOPD(proto, Symbol.toStringTag);
