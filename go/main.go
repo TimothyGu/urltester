@@ -8,7 +8,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"unicode/utf8"
+	"unicode"
 
 	"golang.org/x/net/idna"
 )
@@ -136,8 +136,8 @@ func decodeIDNA(u *url.URL) {
 	}
 }
 
-///// From https://github.com/golang/go/blob/go1.16.3/src/net/http/http.go
-///// From https://github.com/golang/go/blob/go1.16.3/src/net/http/request.go
+///// From https://github.com/golang/go/blob/go1.17.1/src/net/http/internal/ascii/print.go
+///// From https://github.com/golang/go/blob/go1.17.1/src/net/http/request.go
 
 func idnaASCII(v string) (string, error) {
 	if isASCII(v) {
@@ -148,7 +148,7 @@ func idnaASCII(v string) (string, error) {
 
 func isASCII(s string) bool {
 	for i := 0; i < len(s); i++ {
-		if s[i] >= utf8.RuneSelf {
+		if s[i] > unicode.MaxASCII {
 			return false
 		}
 	}
