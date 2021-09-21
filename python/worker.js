@@ -1,6 +1,6 @@
 importScripts("../common/worker_common.js");
 
-const PYODIDE_VERSION = "v0.18.0"
+const PYODIDE_VERSION = "v0.18.1"
 const PYODIDE_ROOT = `https://cdn.jsdelivr.net/pyodide/${PYODIDE_VERSION}/full`;
 
 importScripts(`${PYODIDE_ROOT}/pyodide.js`);
@@ -16,15 +16,17 @@ async function init() {
     class InvalidURL(ValueError):
       """The URL provided was somehow invalid."""
 
-    # From https://github.com/psf/requests/blob/v2.25.1/requests/utils.py
+    # From https://github.com/psf/requests/blob/v2.26.0/requests/utils.py
 
     # The unreserved URI characters (RFC 3986)
     UNRESERVED_SET = frozenset(
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
 
+
     def unquote_unreserved(uri):
       """Un-escape any percent-escape sequences in a URI that are unreserved
       characters. This leaves all reserved, illegal and non-ASCII bytes encoded.
+
       :rtype: str
       """
       parts = uri.split('%')
@@ -41,14 +43,16 @@ async function init() {
           else:
             parts[i] = '%' + parts[i]
         else:
-            parts[i] = '%' + parts[i]
+          parts[i] = '%' + parts[i]
       return ''.join(parts)
 
 
     def requote_uri(uri):
       """Re-quote the given URI.
+
       This function passes the given URI through an unquote/quote cycle to
       ensure that it is fully and consistently quoted.
+
       :rtype: str
       """
       safe_with_percent = "!#$%&'()*+,/:;=?@[]~"
