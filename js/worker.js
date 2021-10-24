@@ -1,3 +1,4 @@
+// Code generated from worker-src.js; DO NOT EDIT.
 (() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
