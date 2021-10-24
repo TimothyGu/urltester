@@ -1,6 +1,6 @@
 .PHONY: all
-all: bundle.js
+all: worker.js
 
-.PHONY: bundle.js
-bundle.js:
-	npx browserify exports.js -o bundle.js
+.PHONY: worker.js
+worker.js:
+	npx esbuild --bundle --inject:./shims.js --outfile=$@ worker-src.js
