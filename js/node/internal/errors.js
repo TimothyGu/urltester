@@ -1,4 +1,8 @@
-// Copied from https://raw.githubusercontent.com/nodejs/node/v16.6.1/lib/internal/errors.js
+// Copied from https://github.com/nodejs/node/raw/v17.0.1/lib/internal/errors.js
+
+/* eslint node-core/documented-errors: "error" */
+/* eslint node-core/alphabetize-errors: "error" */
+/* eslint node-core/prefer-util-format-errors: "error" */
 
 'use strict';
 
@@ -86,6 +90,9 @@ function makeNodeErrorWithCode(Base, key) {
   };
 }
 
+
+// Utility function for registering the error codes. Only used here. Exported
+// *only* to allow for testing.
 function E(sym, val, def, ...otherClasses) {
   messages.set(sym, val);
   def = makeNodeErrorWithCode(def, sym);

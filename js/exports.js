@@ -1,7 +1,7 @@
 globalThis.specURL = require("spec-url");
 globalThis.specURLVersion = "1.3.0";
 globalThis.nodeURL = require("./node/url.js");
-globalThis.nodeURLVersion = "16.6.1";
+globalThis.nodeURLVersion = "17.0.1";
 
 globalThis.browserVersion = (() => {
   const ua = navigator.userAgent;

@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v16.6.1/lib/internal/assert.js
+// From https://github.com/nodejs/node/raw/v17.0.1/lib/internal/assert.js
 
 'use strict';
 

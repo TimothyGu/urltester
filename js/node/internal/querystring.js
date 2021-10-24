@@ -1,4 +1,4 @@
-// Copied from https://github.com/nodejs/node/raw/v16.6.1/lib/internal/querystring.js
+// Copied from https://github.com/nodejs/node/raw/v17.0.1/lib/internal/querystring.js
 
 'use strict';
 
