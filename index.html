@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang=en-US>
 <meta charset=utf-8>
-<title>URL parser testers</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel=stylesheet integrity=sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0 crossorigin=anonymous>
+<title>URL parser tester</title>
+<link rel=stylesheet href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin=anonymous>
 <meta name=author content="Timothy Gu <timothygu99@gmail.com>">
 <meta name=viewport content="width=device-width, initial-scale=1">
 
@@ -37,6 +37,9 @@
   background-color: var(--bs-danger);
   color: white;
   word-break: inherit;
+  /* Prefer showing spaces explicitly */
+  white-space: pre-wrap;
+  white-space: break-spaces;
 }
 
 #output td.non-string {
@@ -67,6 +70,10 @@
     padding: .25rem .25rem;
   }
 }
+
+.anchorjs-link {
+  font-weight: normal;
+}
 </style>
 
 <header style="float: right; text-align: right; padding: 1em 1em 0 0;">
@@ -77,13 +84,9 @@
   <div class=container>
     <h1>URL parser tester</h1>
     <p>
-      This page parses a given URL with several available parsers, and compares
-      their outputs. To support a variety of programming languages, we make
-      heavy use of <a href="https://developer.mozilla.org/en-US/docs/WebAssembly">WebAssembly</a>
-      and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">Web
-      Workers</a>. Unfortunately, this may lead to some <strong>random
-      crashes/reloads on Safari</strong>; Firefox and Chromium-based browsers
-      are preferred.
+      This page parses a given URL with several available parsers, and compares their outputs.
+      To support a variety of programming languages, we make heavy use of <a href="https://developer.mozilla.org/en-US/docs/WebAssembly">WebAssembly</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">Web Workers</a>.
+      Unfortunately, this may lead to some <strong>random crashes/reloads on Safari</strong>; Firefox and Chromium-based browsers are preferred.
     </p>
     <form>
       <label>URL to parse: <input type=text id=input value="https://timothygu.me/"></label>
@@ -101,37 +104,27 @@
     </table>
   </div>
   <div class=container>
-    <h2>Detailed methodology</h2>
+    <h2 id=methodology>Detailed methodology</h2>
     <p>
-      Parsers sometimes have different names for the same part of a URL. Here, we
-      made things consistent by using names used in the <abbr
-      title="Web Hypertext Application Technology Working Group">WHATWG</abbr> <a
-      href="https://url.spec.whatwg.org/#url"><code>URL</code> API</a>, available
-      in browsers and Node.js. This translation may not always be exact; below we
-      document how we figured the output of each parser.
+      Parsers sometimes have different names for the same part of a URL.
+      Here, we made things consistent by using names used in the <abbr title="Web Hypertext Application Technology Working Group">WHATWG</abbr> <a href="https://url.spec.whatwg.org/#url"><code>URL</code> API</a>, available in browsers and Node.js.
+      This translation may not always be exact;
+      below we document how we figured the output of each parser.
     </p>
     <dl class=fluid-grid>
       <div>
-        <dt>Python urlparse<wbr>+<wbr>requests</dt>
+        <dt id=methodology-py-urlparse>Python urlparse<wbr>+<wbr>requests</dt>
 
         <dd>
-          This combines Python's built-in <a
-          href="https://docs.python.org/3/library/urllib.parse.html">urllib.parse</a>
-          module with Python library <a
-          href="https://docs.python-requests.org/en/master/">Requests</a>'
-          <code>requote_uri()</code> function. Python's urllib uses various
-          RFCs (primarily <a
-          href="https://www.rfc-editor.org/rfc/rfc1738.html">1738</a> and <a
-          href="https://www.rfc-editor.org/rfc/rfc1808.html">1808</a>) as the
-          basis for its parser. To run Python in the browser, we use <a
-          href="https://pyodide.org/">Pyodide</a>, which compiles Python to
-          WebAssembly.
-        </dd>
-
-        <dd>
-          Since the parser does no normalization by default, we use the popular
-          Requests library's <code>requote_uri()</code> for parity with other
-          parsers listed here. The part mappings are as follows:
+          <p>
+            This combines Python's built-in <a href="https://docs.python.org/3/library/urllib.parse.html">urllib.parse</a> module with Python library <a href="https://docs.python-requests.org/en/master/">Requests</a>' <code>requote_uri()</code> function.
+            Python's urllib uses various RFCs (primarily <a href="https://www.rfc-editor.org/rfc/rfc1738.html">1738</a> and <a href="https://www.rfc-editor.org/rfc/rfc1808.html">1808</a>) as the basis for its parser.
+            To run Python in the browser, we use <a href="https://pyodide.org/">Pyodide</a>, which compiles Python to WebAssembly.
+          </p>
+          <p>
+            Since the parser does no normalization by default, we use the popular Requests library's <code>requote_uri()</code> for parity with other parsers listed here.
+            The part mappings are as follows:
+          </p>
           <table class="table table-sm table-centered">
             <thead>
               <tr>
@@ -151,36 +144,29 @@
               <tr><td>hash<td>fragment
             </tbody>
           </table>
-          Note: We ignore the <code>params</code> part, which exists in <a
-          href="https://www.rfc-editor.org/rfc/rfc1738.html">RFC 1738</a> but
-          has no equivalent in other parsers and was removed in <a
-          href="https://www.rfc-editor.org/rfc/rfc3986">RFC 3986</a>.
+          <p>
+            Note: We ignore the <code>params</code> part, which exists in <a href="https://www.rfc-editor.org/rfc/rfc1738.html">RFC 1738</a>
+            but has no equivalent in other parsers and was removed in <a href="https://www.rfc-editor.org/rfc/rfc3986">RFC 3986</a>.
+          </p>
         </dd>
       </div>
       <div>
-        <dt>libcurl</dt>
+        <dt id=methodology-libcurl>libcurl</dt>
 
         <dd>
-          This is libcurl's <a href="https://everything.curl.dev/libcurl/url">URL
-          API</a>. curl uses <a
-          href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a> as
-          the basis for its parser, with some features of the <abbr
-          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
-          URL Standard mixed in, as detailed on its <a
-          href="https://curl.se/docs/url-syntax.html">URL Syntax</a> documentation page.
-          We created a simple C application "frontend" for the API and compiled
-          it to WebAssembly using Emscripten. While curl does <a
-          href="https://curl.se/docs/url-syntax.html#idna">support</a>
-          <abbr title="Internationalized Domain Names for Applications">IDNA</abbr>
-          through the libidn2 library, the functionality is not exposed through
-          the URL API.
-        </dd>
-
-        <dd>
-          When parsing the URL, we use <code>CURLU_<wbr>NON_<wbr>SUPPORT_<wbr>SCHEME</code>
-          and <code>CURLU_<wbr>URLENCODE</code> flags. When getting individual
-          parts of the URL, we pass <code>0</code> as flags. The part mappings
-          are as follows:
+          <p>
+            This is libcurl's <a href="https://everything.curl.dev/libcurl/url">URL API</a>.
+            curl uses <a href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a> as the basis for its parser,
+            with some features of the <abbr title="Web Hypertext Application Technology Working Group">WHATWG</abbr> URL Standard mixed in,
+            as detailed on its <a href="https://curl.se/docs/url-syntax.html">URL Syntax</a> documentation page.
+            We created a simple C application "frontend" for the API and compiled it to WebAssembly using Emscripten.
+            While curl does <a href="https://curl.se/docs/url-syntax.html#idna">support</a> <abbr title="Internationalized Domain Names for Applications">IDNA</abbr> using the libidn2 library,
+            the functionality is not exposed through the URL API.
+          </p>
+          <p>
+            When parsing the URL, we use <code>CURLU_<wbr>NON_<wbr>SUPPORT_<wbr>SCHEME</code> and <code>CURLU_<wbr>URLENCODE</code> flags. When getting individual parts of the URL, we pass <code>0</code> as flags.
+            The part mappings are as follows:
+          </p>
           <table class="table table-sm table-centered">
             <thead>
               <tr>
@@ -200,33 +186,26 @@
               <tr><td>hash<td>CURLUPART_FRAGMENT
             </tbody>
           </table>
-          Note: We ignore <code>CURLUPART_<wbr>OPTIONS</code>, <a
-          href="https://curl.se/docs/url-syntax.html#userinfo">used</a> for
-          IMAP/<wbr>POP3/<wbr>SMTP "login options." We also do not list
-          <code>CURLUPART_<wbr>ZONEID</code> separately as it is included in
-          <code>CURLUPART_<wbr>HOST</code>.
+          <p>
+            Note: We ignore <code>CURLUPART_<wbr>OPTIONS</code>, <a href="https://curl.se/docs/url-syntax.html#userinfo">used</a> for IMAP/<wbr>POP3/<wbr>SMTP "login options." We also do not list <code>CURLUPART_<wbr>ZONEID</code> separately as it is included in <code>CURLUPART_<wbr>HOST</code>.
+          </p>
         </dd>
       </div>
       <div>
-        <dt>Go net/url</dt>
-        <dt>Go net/http</dt>
+        <dt id=methodology-go-net-url>Go net/url</dt>
+        <dt id=methodology-go-net-http>Go net/http</dt>
 
         <dd>
-          This is Go's built-in <a href="https://golang.org/pkg/net/url/">net/url
-          package</a>. The parser is based on <a
-          href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a>, with
-          some compatibility fixes. We compiled it to WebAssembly using Go's <a
-          href="https://github.com/golang/go/wiki/WebAssembly">built-in compiler
-          support</a>. net/url itself does not support <abbr
-          title="Internationalized Domain Names for Applications">IDNA</abbr>,
-          but the built-in <a href="https://golang.org/pkg/net/http/">net/http
-          package</a> does through the <a
-          href="https://pkg.go.dev/golang.org/x/net/idna">golang.org/<wbr>x/<wbr>net/<wbr>idna
-          package</a>. We added a "Go net/http" entry to emulate how net/http
-          handles a URL.
-
-        <dd>
-          The part mappings are as follows:
+          <p>
+            This is Go's built-in <a href="https://golang.org/pkg/net/url/">net/url package</a>. The parser is based on <a href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a>, with some compatibility fixes.
+            We compiled it to WebAssembly using Go's <a href="https://github.com/golang/go/wiki/WebAssembly">built-in compiler support</a>.
+            net/url itself does not support <abbr title="Internationalized Domain Names for Applications">IDNA</abbr>, but the built-in <a href="https://golang.org/pkg/net/http/">net/http package</a> does through the <a href="https://pkg.go.dev/golang.org/x/net/idna">golang.org/<wbr>x/<wbr>net/<wbr>idna
+            package</a>.
+            We added a "Go net/http" entry to emulate how net/http handles a URL.
+          </p>
+          <p>
+            The part mappings are as follows:
+          </p>
           <table class="table table-sm table-centered">
             <thead>
               <tr>
@@ -249,32 +228,21 @@
         </dd>
       </div>
       <div>
-        <dt>Node.js legacy</dt>
+        <dt id=methodology-nodejs-legacy>Node.js legacy</dt>
 
         <dd>
-          This is the Node.js's <a
-          href="https://nodejs.org/dist/latest-v16.x/docs/api/url.html#url_legacy_url_api">legacy
-          URL parser</a>, written in JavaScript based on <a
-          href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a>.
-          Developers have been encouraged to switch to the modern parser based
-          on the <abbr
-          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
-          URL Standard since version 8 (released in 2017). We copied the parser
-          as well as some required internal Node.js source files and bundled
-          them using <a href="http://browserify.org/">Browserify</a> for use
-          here.
-        </dd>
-
-        <dd>
-          Compared to the official Node.js binaries, the version presented here
-          could have some slight differences when handling IDNA. This is since
-          Node.js generally uses ICU4C's IDNA support (which is difficult to
-          compile to WebAssembly), while here we have replaced it with a pure
-          JavaScript implementation <a href="https://github.com/jsdom/tr46">tr46</a>.
-        </dd>
-
-        <dd>
-          The part mappings are as follows:
+          <p>
+            This is the Node.js's <a href="https://nodejs.org/dist/latest-v17.x/docs/api/url.html#url_legacy_url_api">legacy URL parser</a>, written in JavaScript based on <a href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a>.
+            Developers have been encouraged to switch to the modern parser based on the <abbr title="Web Hypertext Application Technology Working Group">WHATWG</abbr> URL Standard since version 8 (released in 2017).
+            We copied the parser as well as some required internal Node.js source files and bundled them using <a href="https://esbuild.github.io/">esbuild</a> for use here.
+          </p>
+          <p>
+            Compared to the official Node.js binaries, the version presented here could have some slight differences when handling <abbr title="Internationalized Domain Names for Applications">IDNA</abbr>.
+            This is since Node.js generally uses ICU4C's IDNA support (which is difficult to compile to WebAssembly), while here we have replaced it with a pure JavaScript implementation <a href="https://github.com/jsdom/tr46">tr46</a>.
+          </p>
+          <p>
+            The part mappings are as follows:
+          </p>
           <table class="table table-sm table-centered">
             <thead>
               <tr>
@@ -297,45 +265,26 @@
         </dd>
       </div>
       <div>
-        <dt>spec-url</dt>
-        <dt>spec-url absolute</dt>
+        <dt id=methodology-js-spec-url>spec-url</dt>
+        <dt id=methodology-js-spec-url-abs>spec-url absolute</dt>
 
         <dd>
-          This is the JavaScript <a
-          href="https://github.com/alwinb/spec-url">spec-url</a> library, a
-          reference implementation of Alwin Blok's <a
-          href="https://alwinb.github.io/url-specification/">URL
-          Specification</a>. Blok's specification is designed to be a
-          rephrasing of the <abbr
-          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
-          URL Standard in more theoretic terms. We used <a
-          href="http://browserify.org/">Browserify</a> to generate a bundle for
-          the library.
-        </dd>
-
-        <dd>
-          Since spec-url does not yet provide a high-level parsing function, we
-          have to describe what exactly we do here. The actual parsing steps
-          done by this tool is similar to the proposed
-          <a href="https://alwinb.github.io/url-specification/#concluding"><em>parse-resolve-and-normalise</em></a>
-          algorithm in Blok's specification. If no base URL is specified,
-          "web-mode" is used, and the "force resolve" step in the algorithm is
-          not done.
-        </dd>
-
-        <dd>
-          The <em>absolute</em> variant optimizes for use of the input string
-          as an "absolute URL," at the risk of losing some information.
-          Concretely, the absolute variant always <a
-          href="https://alwinb.github.io/url-specification/#reference-resolution">forces</a>
-          the parser output. The absolute variant is closer to how the <abbr
-          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
-          URL Standard operates, while the normal variant is closer to how Go's
-          net/url operates.
-        </dd>
-
-        <dd>
-          The part mappings are derived from Blok's specification:
+          <p>
+            This is the JavaScript <a href="https://github.com/alwinb/spec-url">spec-url</a> library, a reference implementation of Alwin Blok's <a href="https://alwinb.github.io/url-specification/">URL Specification</a>.
+            Blok's specification is designed to be a rephrasing of the <abbr title="Web Hypertext Application Technology Working Group">WHATWG</abbr> URL Standard in more mathematical terms.
+            We used <a href="https://esbuild.github.io/">esbuild</a> to generate a bundle for the library.
+          </p>
+          <p>
+            The actual parsing steps done by this tool is similar to the proposed <a href="https://alwinb.github.io/url-specification/#concluding"><em>parse-resolve-and-normalise</em></a> algorithm in Blok's specification.
+            If no base URL is specified, "web-mode" is used, and the "force resolve" step in the algorithm is not done.
+          </p>
+          <p>
+            The <em>absolute</em> variant optimizes for use of the input string as an "absolute URL," at the risk of losing some information. Concretely, the absolute variant always <a href="https://alwinb.github.io/url-specification/#reference-resolution">forces</a> the parser output.
+            The absolute variant is closer to how the <abbr title="Web Hypertext Application Technology Working Group">WHATWG</abbr> URL Standard operates, while the normal variant is closer to how Go's net/url and Node.js' legacy parser operate.
+          </p>
+          <p>
+            The part mappings are derived from Blok's specification:
+          </p>
           <table class="table table-sm table-centered">
             <thead>
               <tr>
@@ -358,21 +307,17 @@
         </dd>
       </div>
       <div>
-        <dt>Rust url</dt>
+        <dt id=methodology-rust-url>Rust url</dt>
 
         <dd>
-          This is Rust's <a href="https://docs.rs/url/">url</a> crate, created by
-          the Servo Project. It should be highly compatible with the <abbr
-          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
-          URL Standard, with complete <abbr
-          title="Internationalized Domain Names for Applications">IDNA</abbr>
-          support. We compiled it to WebAssembly using <a
-          href="https://rustwasm.github.io/wasm-pack/">wasm-pack</a> and <a
-          href="https://rustwasm.github.io/docs/wasm-bindgen/">wasm-bindgen</a>.
-        </dd>
-
-        <dd>
-          The part mappings are as follows:
+          <p>
+            This is Rust's <a href="https://docs.rs/url/">url</a> crate, created by the Servo Project.
+            It should be highly compatible with the <abbr title="Web Hypertext Application Technology Working Group">WHATWG</abbr> URL Standard, with complete <abbr title="Internationalized Domain Names for Applications">IDNA</abbr> support.
+            We compiled it to WebAssembly using <a href="https://rustwasm.github.io/wasm-pack/">wasm-pack</a> and <a href="https://rustwasm.github.io/docs/wasm-bindgen/">wasm-bindgen</a>.
+          </p>
+          <p>
+            The part mappings are as follows:
+          </p>
           <table class="table table-sm table-centered">
             <thead>
               <tr>
@@ -395,29 +340,20 @@
         </dd>
       </div>
       <div>
-        <dt>whatwg-url</dt>
+        <dt id=methodology-js-whatwg-url>whatwg-url</dt>
 
         <dd>
-          This is the JavaScript <a
-          href="https://github.com/jsdom/whatwg-url">whatwg-url</a> library,
-          designed from scratch to be a reference implementation of the <abbr
-          title="Web Hypertext Application Technology Working Group">WHATWG</abbr>
-          URL Standard. We load the latest (nightly) bundle of the JavaScript <a
-          href="https://github.com/jsdom/whatwg-url">whatwg-url</a> library,
-          which is also used for its own <a
-          href="https://jsdom.github.io/whatwg-url/">URL Viewer</a> program. This
-          utility is, to a large extent, inspired by URL Viewer. URL part mapping
-          is trivial, as whatwg-url exposes the same properties as a browser
-          <code>URL</code> object.
+          This is the JavaScript <a href="https://github.com/jsdom/whatwg-url">whatwg-url</a> library, designed from scratch to be a reference implementation of the <abbr title="Web Hypertext Application Technology Working Group">WHATWG</abbr> URL Standard.
+          We load the latest (nightly) bundle of the JavaScript <a href="https://github.com/jsdom/whatwg-url">whatwg-url</a> library, which is also used for its own <a href="https://jsdom.github.io/whatwg-url/">URL Viewer</a> program.
+          This utility is, to a large extent, inspired by URL Viewer.
+          URL part mapping is trivial, as whatwg-url exposes the same properties as a browser <code>URL</code> object.
         </dd>
       </div>
       <div>
-        <dt>your browser</dt>
+        <dt id=methodology-your-browser>your browser</dt>
 
         <dd>
-          For comparison, we also parse every URL with your own browser's
-          <code>URL</code> class. URL part mapping is trivial, as whatwg-url
-          exposes the same properties as a browser <code>URL</code> object.
+          For comparison, we also parse every URL with your own browser's <code>URL</code> class.
         </dd>
       </div>
     </dl>
@@ -425,3 +361,9 @@
 </main>
 
 <script src="index.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" integrity="sha256-0WMZ9PF4b2hTF66Eglv/9H5Vwk6lnOG4AbmCJxo96WQ=" crossorigin=anonymous></script>
+<script>
+  anchors.options.icon = '§';
+  anchors.add('h2[id], h3[id], h4[id], h5[id], h6[id], dt[id]');
+</script>

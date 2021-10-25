@@ -1,3 +1,5 @@
+"use strict";
+
 class URLParser extends EventTarget {
   constructor(href) {
     super();
@@ -277,9 +279,28 @@ for (const { name, worker, options } of parsers) {
   renders.push(new ParserRenderer(name, worker, renders.length, options));
 }
 
-async function runAndUpdate() {
+async function runAndUpdate({ firstTime = false, userInteraction = false } = {}) {
+  let loadedFromHash = false;
+  if (firstTime) {
+    const params = new URLSearchParams(location.hash.slice(1));
+    if (params.has("input")) {
+      loadedFromHash = true;
+      inputEl.value = params.get("input");
+      baseEl.value = params.get("base");
+    }
+  }
+
   const input = inputEl.value;
   const base = baseEl.value || undefined;
+
+  if (loadedFromHash || userInteraction) {
+    const params = new URLSearchParams();
+    params.set("input", input);
+    if (base !== undefined) {
+      params.set("base", base);
+    }
+    history.pushState(null, "", `#${params.toString()}`);
+  }
 
   const boxes = await Promise.all(renders.map(render => render.run(input, base)));
 
@@ -361,7 +382,7 @@ async function runAndUpdate() {
 // From https://gist.github.com/nmsdvid/8807205
 function debounce(func, wait) {
   let timeout;
-  return function(...args) {
+  return (...args) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       timeout = null;
@@ -372,9 +393,14 @@ function debounce(func, wait) {
 
 const debouncedRunAndUpdate = debounce(runAndUpdate, 200);
 
-runAndUpdate();
-inputEl.addEventListener("input", debouncedRunAndUpdate);
-baseEl.addEventListener("input", debouncedRunAndUpdate);
+runAndUpdate({ firstTime: true });
+inputEl.addEventListener("input", () => {
+  debouncedRunAndUpdate({ userInteraction: true });
+});
+baseEl.addEventListener("input", () => {
+  debouncedRunAndUpdate({ userInteraction: true });
+});
+window.addEventListener("hashchange", () => runAndUpdate({ firstTime: true }));
 
 for (const render of renders) {
   render.parser.ready.then(debouncedRunAndUpdate);
