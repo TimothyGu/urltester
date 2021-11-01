@@ -106,6 +106,7 @@ class URLParser extends EventTarget {
 const inputEl = document.getElementById("input");
 const baseEl = document.getElementById("base");
 const outputEl = document.getElementById("output");
+const toggleEls = Array.from(document.querySelectorAll('[data-toggle-tag]'));
 
 const props = [
   "href", "protocol", "username", "password",
@@ -126,11 +127,11 @@ for (const prop of props) {
 const parsersByHref = new Map();
 
 class ParserRenderer {
-  constructor(name, href, index, options) {
+  constructor(name, href, index, options, tags) {
     this.name = name;
     this.href = href;
-    this.index = index;
     this.options = options;
+    this.tags = tags;
     this.parser = parsersByHref.get(href);
     if (!this.parser) {
       this.parser = new URLParser(href);
@@ -141,21 +142,14 @@ class ParserRenderer {
     this.lastBase = undefined;
     this.lastOutputPromise = undefined;
 
-    const thead = outputEl.tHead;
-    const row = thead.rows[0];
-    let th = row.cells[index + 1];
-    if (!th) {
-      while (row.cells.length < index + 2) {
-        th = document.createElement("th");
-        row.append(th);
-      }
-    }
-
+    const th = document.createElement("th");
     if (this.parser.initialized) {
       th.innerText = name + "\ninitializing";
     } else {
       th.innerText = name;
     }
+
+    this.th = th;
 
     this.version = "";
 
@@ -218,75 +212,90 @@ class ParserRenderer {
 
 const parsers = [
   {
-    name: "Python urlparse+requests",
-    worker: "python/worker.js",
-    tags: ["python", "rfc3986"],
-  },
-  {
-    name: "libcurl",
-    worker: "curl/worker.js",
-    tags: ["c", "rfc3986"],
-  },
-  {
     name: "Go net/url",
     worker: "go/worker.js",
-    tags: ["go", "rfc3986"],
+    tags: ["go", "rfc3986", "relative"],
   },
   {
     name: "Go net/http",
     worker: "go/worker.js",
     options: { useIDNA: true },
-    tags: ["go", "idna", "rfc3986"],
+    tags: ["go", "idna", "rfc3986", "relative"],
   },
   {
     name: "Node.js legacy",
     worker: "js/worker.js",
     options: { parser: "node-legacy" },
-    tags: ["js", "idna", "rfc3986"],
+    tags: ["js", "idna", "rfc3986", "relative"],
+  },
+  {
+    name: "Python urlparse",
+    worker: "python/worker.js",
+    options: { parser: "urlparse" },
+    tags: ["python", "rfc3986", "relative"],
+  },
+  {
+    name: "Python requests",
+    worker: "python/worker.js",
+    options: { parser: "requests" },
+    tags: ["python", "idna", "rfc3986", "resolvepath"],
+  },
+  {
+    name: "libcurl",
+    worker: "curl/worker.js",
+    tags: ["c", "rfc3986", "resolvepath"],
   },
   {
     name: "spec-url",
     worker: "js/worker.js",
     options: { parser: "spec-url" },
-    tags: ["js", "idna", "whatwg", "rfc3986"],
+    tags: ["js", "idna", "whatwg", "rfc3986", "relative", "resolvepath"],
   },
   {
     name: "spec-url absolute",
     worker: "js/worker.js",
     options: { parser: "spec-url", shouldForce: true },
-    tags: ["js", "idna", "whatwg"],
+    tags: ["js", "idna", "whatwg", "resolvepath"],
   },
   {
     name: "Rust url",
     worker: "rust/url/worker.js",
-    tags: ["rust", "idna", "whatwg"],
+    tags: ["rust", "idna", "whatwg", "resolvepath"],
   },
   {
     name: "whatwg-url",
     worker: "whatwg-url/worker.js",
-    tags: ["js", "idna", "whatwg"],
+    tags: ["js", "idna", "whatwg", "resolvepath"],
   },
   {
     name: "your browser",
     worker: "js/worker.js",
     options: { parser: "native" },
-    tags: ["idna"],
+    tags: ["idna", "whatwg", "resolvepath"],
   },
 ];
 
 const renders = [];
-for (const { name, worker, options } of parsers) {
-  renders.push(new ParserRenderer(name, worker, renders.length, options));
+for (const { name, worker, options, tags } of parsers) {
+  renders.push(new ParserRenderer(name, worker, renders.length, options, tags));
 }
 
 async function runAndUpdate({ firstTime = false, userInteraction = false } = {}) {
   let loadedFromHash = false;
   if (firstTime) {
+    debugger;
     const params = new URLSearchParams(location.hash.slice(1));
     if (params.has("input")) {
       loadedFromHash = true;
       inputEl.value = params.get("input");
       baseEl.value = params.get("base");
+    }
+    if (params.has("filter")) {
+      loadedFromHash = true;
+    }
+    const filters = params.getAll("filter")
+    for (const toggle of toggleEls) {
+      toggle.checked = filters.includes(toggle.dataset.toggleTag);
     }
   }
 
@@ -299,16 +308,32 @@ async function runAndUpdate({ firstTime = false, userInteraction = false } = {})
     if (base !== undefined) {
       params.set("base", base);
     }
+    for (const toggle of toggleEls) {
+      if (toggle.checked) {
+        params.append("filter", toggle.dataset.toggleTag);
+      }
+    }
     history.pushState(null, "", `#${params.toString()}`);
   }
 
-  const boxes = await Promise.all(renders.map(render => render.run(input, base)));
+  const effectiveRenders = renders.filter(render => {
+    return toggleEls.every(toggle => !toggle.checked || render.tags.includes(toggle.dataset.toggleTag));
+  });
+  const boxes = await Promise.all(effectiveRenders.map(render => render.run(input, base)));
 
-  let skipped = 0;
-  for (const box of boxes) {
-    if (!Array.isArray(box)) {
-      skipped++;
+  const thead = outputEl.tHead;
+  const headRow = thead.rows[0];
+  for (let i = 0; i < effectiveRenders.length; i++) {
+    const render = effectiveRenders[i];
+    while (i + 1 < headRow.cells.length && headRow.cells[i + 1] !== render.th) {
+      headRow.removeChild(headRow.cells[i + 1]);
     }
+    if (headRow.cells[i + 1] !== render.th) {
+      headRow.append(render.th);
+    }
+  }
+  while (effectiveRenders.length + 1 < headRow.cells.length) {
+    headRow.removeChild(headRow.cells[effectiveRenders.length + 1]);
   }
 
   const tbody = outputEl.tBodies[0];
@@ -400,6 +425,11 @@ inputEl.addEventListener("input", () => {
 baseEl.addEventListener("input", () => {
   debouncedRunAndUpdate({ userInteraction: true });
 });
+for (const toggle of toggleEls) {
+  toggle.addEventListener("input", () => {
+    debouncedRunAndUpdate({ userInteraction: true });
+  });
+}
 window.addEventListener("hashchange", () => runAndUpdate({ firstTime: true }));
 
 for (const render of renders) {

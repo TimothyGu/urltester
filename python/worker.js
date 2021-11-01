@@ -6,84 +6,39 @@ const PYODIDE_ROOT = `https://cdn.jsdelivr.net/pyodide/${PYODIDE_VERSION}/full`;
 importScripts(`${PYODIDE_ROOT}/pyodide.js`);
 
 let pyParse;
+let requestsParse;
 let pyVersion;
+let requestsVersion;
 
 async function init() {
   const pyodide = await loadPyodide({ indexURL: PYODIDE_ROOT, fullStdLib: false });
+  await pyodide.loadPackage("micropip");
   await pyodide.runPythonAsync(`
-    from urllib.parse import quote
-
-    class InvalidURL(ValueError):
-      """The URL provided was somehow invalid."""
-
-    # From https://github.com/psf/requests/blob/v2.26.0/requests/utils.py
-
-    # The unreserved URI characters (RFC 3986)
-    UNRESERVED_SET = frozenset(
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
-
-
-    def unquote_unreserved(uri):
-      """Un-escape any percent-escape sequences in a URI that are unreserved
-      characters. This leaves all reserved, illegal and non-ASCII bytes encoded.
-
-      :rtype: str
-      """
-      parts = uri.split('%')
-      for i in range(1, len(parts)):
-        h = parts[i][0:2]
-        if len(h) == 2 and h.isalnum():
-          try:
-            c = chr(int(h, 16))
-          except ValueError:
-            raise InvalidURL("Invalid percent-escape sequence: '%s'" % h)
-
-          if c in UNRESERVED_SET:
-            parts[i] = c + parts[i][2:]
-          else:
-            parts[i] = '%' + parts[i]
-        else:
-          parts[i] = '%' + parts[i]
-      return ''.join(parts)
-
-
-    def requote_uri(uri):
-      """Re-quote the given URI.
-
-      This function passes the given URI through an unquote/quote cycle to
-      ensure that it is fully and consistently quoted.
-
-      :rtype: str
-      """
-      safe_with_percent = "!#$%&'()*+,/:;=?@[]~"
-      safe_without_percent = "!#$&'()*+,/:;=?@[]~"
-      try:
-        # Unquote only the unreserved characters
-        # Then quote only illegal characters (do not quote reserved,
-        # unreserved, or '%')
-        return quote(unquote_unreserved(uri), safe=safe_with_percent)
-      except InvalidURL:
-        # We couldn't unquote the given URI, so let's try quoting it, but
-        # there may be unquoted '%'s in the URI. We need to make sure they're
-        # properly quoted so they do not cause issues elsewhere.
-        return quote(uri, safe=safe_without_percent)
+    import micropip
+    await micropip.install(['requests', 'urllib3'])
+    import sys
+    sys.tracebacklimit = 0
   `);
 
   await pyodide.runPythonAsync(`
     import json
     from platform import python_version
     from typing import Optional
-    from urllib.parse import urlparse, urlunparse, urljoin
+    import urllib.parse
+    import requests
+    from requests.utils import requote_uri
+    import urllib3.util
 
     py_version = python_version()
+    requests_version = requests.__version__
 
     def parse(input: str, base: Optional[str]) -> str:
       if base is not None:
-        input = urljoin(base, input)
+        input = urllib.parse.urljoin(base, input)
 
-      url = urlparse(input)
+      url = urllib.parse.urlparse(input)
       input = requote_uri(url.geturl())
-      url = urlparse(input)
+      url = urllib.parse.urlparse(input)
 
       url_dict = url._asdict()
       url_dict["href"] = url.geturl()
@@ -96,9 +51,23 @@ async function init() {
         url_dict["port"] = e.args[0]
       url_dict["version"] = python_version()
       return json.dumps(url_dict)
+
+    def requests_parse(input: str, base: Optional[str]) -> str:
+      if base is not None:
+        input = urllib.parse.urljoin(base, input)
+
+      req = requests.Request('GET', input)
+      req = req.prepare()
+      url = urllib3.util.parse_url(req.url)
+      url_dict = url._asdict()
+      url_dict["href"] = url.url
+      url_dict["version"] = requests.__version__
+      return json.dumps(url_dict)
   `);
   pyParse = pyodide.globals.get("parse");
+  requestsParse = pyodide.globals.get("requests_parse");
   pyVersion = pyodide.globals.get("py_version");
+  requestsVersion = pyodide.globals.get("requests_version")
 }
 
 const initProm = init();
@@ -123,7 +92,7 @@ function convertJSON(json) {
   }
   return {
     href: json.href,
-    protocol: json.scheme + ":",
+    protocol: json.scheme ? json.scheme + ":" : "",
     username: json.username ?? "",
     password: json.password ?? "",
     hostname: json.hostname ?? "",
@@ -134,11 +103,58 @@ function convertJSON(json) {
   };
 }
 
-async function run(url, base) {
-  await initProm;
+function convertJSONRequests(json) {
+  if (!json) {
+    return json;
+  }
+  let username = "", password = "";
+  if (json.auth) {
+    const idx = json.auth.indexOf(":");
+    if (idx >= 0) {
+      username = json.auth.slice(0, idx);
+      password = json.auth.slice(idx + 1);
+    } else {
+      username = json.auth;
+    }
+  }
+  return {
+    href: json.href,
+    protocol: json.scheme ? json.scheme + ":" : "",
+    username,
+    password,
+    hostname: json.host ?? "",
+    port: String(json.port ?? ""),
+    pathname: json.path,
+    search: json.query ? "?" + json.query : "",
+    hash: json.fragment ? "#" + json.fragment : "",
+  };
+}
 
-  const json = JSON.parse(pyParse(url, base));
-  return { json: convertJSON(json) };
+function version(parser) {
+  switch (parser) {
+    case "requests":
+      return requestsVersion;
+    case "urlparse":
+      return pyVersion;
+    default:
+      throw new Error("unrecognized parser: " + parser)
+  }
+}
+
+async function run(url, base, parser) {
+  await initProm;
+  switch (parser) {
+    case "requests": {
+      const json = JSON.parse(requestsParse(url, base));
+      return { json: convertJSONRequests(json), version: json.version };
+    }
+    case "urlparse": {
+      const json = JSON.parse(pyParse(url, base));
+      return { json: convertJSON(json), version: json.version };
+    }
+    default:
+      throw new Error("unrecognized parser: " + parser)
+  }
 }
 
 self.onmessage = async e => {
@@ -150,15 +166,15 @@ self.onmessage = async e => {
 
   switch (payload.type) {
     case "urlToParse": {
-      const { input, base } = payload;
+      const { input, base, options } = payload;
       try {
-        const { json } = await run(input, base);
+        const { json } = await run(input, base, options.parser);
         postMessage({
           id: nextID++,
           type: "parsedURL",
           orig: payload.id,
           json,
-          version: pyVersion,
+          version: version(options.parser),
         });
       } catch (ex) {
         postMessage({
@@ -166,7 +182,7 @@ self.onmessage = async e => {
           type: "parsedURL",
           orig: payload.id,
           err: serializeError(ex),
-          version: pyVersion,
+          version: version(options.parser),
         });
       }
       break;

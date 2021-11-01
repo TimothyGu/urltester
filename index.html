@@ -88,9 +88,18 @@
       To support a variety of programming languages, we make heavy use of <a href="https://developer.mozilla.org/en-US/docs/WebAssembly">WebAssembly</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">Web Workers</a>.
       Unfortunately, this may lead to some <strong>random crashes/reloads on Safari</strong>; Firefox and Chromium-based browsers are preferred.
     </p>
+    <p>
+      Know of any other parser that you'd like to see here?
+      <a href="https://github.com/TimothyGu/urltester/issues/new">File an issue.</a>
+    </p>
     <form>
       <label>URL to parse: <input type=text id=input value="https://timothygu.me/"></label>
       <label>Base URL: <input type=text id=base></label>
+      Filter by:
+      <label><input type=checkbox data-toggle-tag=idna>IDNA</label>
+      <label><input type=checkbox data-toggle-tag=whatwg>WHATWG</label>
+      <label><input type=checkbox data-toggle-tag=relative>allows relative</label>
+      <label><input type=checkbox data-toggle-tag=resolvepath>resolves path</label>
     </form>
   </div>
   <div class=container-fluid>
@@ -104,6 +113,21 @@
     </table>
   </div>
   <div class=container>
+    <h2 id=examples>Interesting examples</h2>
+    <p>Here are some URLs that parsers tend to diverge on. Parsers that act differently from others are in parentheses.</p>
+    <ul>
+      <li>Empty fragment: <a href="#input=https%3A%2F%2Fexample.com%2F%23">https://example.com/#</a> (Python, libcurl, Go)</li>
+      <li>Path normalization: <a href="#input=https%3A%2F%2Fexample.com%2Ffoo%2F..%2Fbar">https://example.com/foo/../bar</a> (Python urlparse, Go, Node.js legacy)</li>
+      <li>
+        IDNA 2003 vs. 2008: <a href="#input=https%3A%2F%2Ffa%C3%9F.de%2F&filter=idna">https://faß.de/</a> (Chrome and Go net/http)
+        <small>(changing in <a href="https://github.com/golang/go/issues/46001">Go 1.18</a>)</small>
+      </li>
+      <li>Query encoding: <a href="#input=https%3A%2F%2Fexample.com%2F%3F%3C%3E%22">https://example.com/?&lt;&gt;"</a> (libcurl and Go)</li>
+      <li><code>file</code> URL with host (Windows UNC paths): <a href="#input=file%3A%2F%2Fserver01%2Fsage%2Fjobcosting">file://server01/sage/jobcosting</a> (libcurl and Firefox)</li>
+      <li><code>file</code> URL path normalization with Windows drive letter: <a href="#input=file%3A%2F%2F%2FC%3A%2F..&filter=resolvepath">file:///C:/..</a> (Firefox vs. other browsers)</li>
+      <li>Invalid percent encoding: <a href="#input=https%3A%2F%2Fexample.com%2F%25xyz">https://example.com/%xyz</a> (Python and Go)</li>
+      <li>Invalid IDNA encoding: <a href="#input=https%3A%2F%2Fxn--abc.com%2F&filter=idna">https://xn--abc.com/</a> (Node.js legacy, Rust url, whatwg-url, Safari)</li>
+    </ul>
     <h2 id=methodology>Detailed methodology</h2>
     <p>
       Parsers sometimes have different names for the same part of a URL.
@@ -112,85 +136,6 @@
       below we document how we figured the output of each parser.
     </p>
     <dl class=fluid-grid>
-      <div>
-        <dt id=methodology-py-urlparse>Python urlparse<wbr>+<wbr>requests</dt>
-
-        <dd>
-          <p>
-            This combines Python's built-in <a href="https://docs.python.org/3/library/urllib.parse.html">urllib.parse</a> module with Python library <a href="https://docs.python-requests.org/en/master/">Requests</a>' <code>requote_uri()</code> function.
-            Python's urllib uses various RFCs (primarily <a href="https://www.rfc-editor.org/rfc/rfc1738.html">1738</a> and <a href="https://www.rfc-editor.org/rfc/rfc1808.html">1808</a>) as the basis for its parser.
-            To run Python in the browser, we use <a href="https://pyodide.org/">Pyodide</a>, which compiles Python to WebAssembly.
-          </p>
-          <p>
-            Since the parser does no normalization by default, we use the popular Requests library's <code>requote_uri()</code> for parity with other parsers listed here.
-            The part mappings are as follows:
-          </p>
-          <table class="table table-sm table-centered">
-            <thead>
-              <tr>
-                <th>Property</th>
-                <th><a href="https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse">ParseResult</a> properties</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>href<td>geturl()
-              <tr><td>protocol<td>scheme
-              <tr><td>username<td>username
-              <tr><td>password<td>password
-              <tr><td>hostname<td>hostname
-              <tr><td>port<td>port
-              <tr><td>pathname<td>path
-              <tr><td>search<td>query
-              <tr><td>hash<td>fragment
-            </tbody>
-          </table>
-          <p>
-            Note: We ignore the <code>params</code> part, which exists in <a href="https://www.rfc-editor.org/rfc/rfc1738.html">RFC 1738</a>
-            but has no equivalent in other parsers and was removed in <a href="https://www.rfc-editor.org/rfc/rfc3986">RFC 3986</a>.
-          </p>
-        </dd>
-      </div>
-      <div>
-        <dt id=methodology-libcurl>libcurl</dt>
-
-        <dd>
-          <p>
-            This is libcurl's <a href="https://everything.curl.dev/libcurl/url">URL API</a>.
-            curl uses <a href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a> as the basis for its parser,
-            with some features of the <abbr title="Web Hypertext Application Technology Working Group">WHATWG</abbr> URL Standard mixed in,
-            as detailed on its <a href="https://curl.se/docs/url-syntax.html">URL Syntax</a> documentation page.
-            We created a simple C application "frontend" for the API and compiled it to WebAssembly using Emscripten.
-            While curl does <a href="https://curl.se/docs/url-syntax.html#idna">support</a> <abbr title="Internationalized Domain Names for Applications">IDNA</abbr> using the libidn2 library,
-            the functionality is not exposed through the URL API.
-          </p>
-          <p>
-            When parsing the URL, we use <code>CURLU_<wbr>NON_<wbr>SUPPORT_<wbr>SCHEME</code> and <code>CURLU_<wbr>URLENCODE</code> flags. When getting individual parts of the URL, we pass <code>0</code> as flags.
-            The part mappings are as follows:
-          </p>
-          <table class="table table-sm table-centered">
-            <thead>
-              <tr>
-                <th>Property</th>
-                <th><a href="https://github.com/curl/curl/blob/curl-7_76_1/include/curl/urlapi.h#L53-L65">CURLUPart</a></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>href<td>CURLUPART_URL
-              <tr><td>protocol<td>CURLUPART_SCHEME
-              <tr><td>username<td>CURLUPART_USER
-              <tr><td>password<td>CURLUPART_PASSWORD
-              <tr><td>hostname<td>CURLUPART_HOST
-              <tr><td>port<td>CURLUPART_PORT
-              <tr><td>pathname<td>CURLUPART_PATH
-              <tr><td>search<td>CURLUPART_QUERY
-              <tr><td>hash<td>CURLUPART_FRAGMENT
-            </tbody>
-          </table>
-          <p>
-            Note: We ignore <code>CURLUPART_<wbr>OPTIONS</code>, <a href="https://curl.se/docs/url-syntax.html#userinfo">used</a> for IMAP/<wbr>POP3/<wbr>SMTP "login options." We also do not list <code>CURLUPART_<wbr>ZONEID</code> separately as it is included in <code>CURLUPART_<wbr>HOST</code>.
-          </p>
-        </dd>
-      </div>
       <div>
         <dt id=methodology-go-net-url>Go net/url</dt>
         <dt id=methodology-go-net-http>Go net/http</dt>
@@ -262,6 +207,117 @@
               <tr><td>hash<td>hash
             </tbody>
           </table>
+        </dd>
+      </div>
+      <div>
+        <dt id=methodology-py-urlparse>Python urlparse</dt>
+
+        <dd>
+          <p>
+            This combines Python's built-in <a href="https://docs.python.org/3/library/urllib.parse.html">urllib.parse</a> module with Python library <a href="https://docs.python-requests.org/en/master/">Requests</a>' <code>requote_uri()</code> function.
+            Python's urllib uses various RFCs (primarily <a href="https://www.rfc-editor.org/rfc/rfc1738.html">1738</a> and <a href="https://www.rfc-editor.org/rfc/rfc1808.html">1808</a>) as the basis for its parser.
+            To run Python in the browser, we use <a href="https://pyodide.org/">Pyodide</a>, which compiles Python to WebAssembly.
+          </p>
+          <p>
+            Since the parser does no normalization by default, we use the popular Requests library's <code>requote_uri()</code> for parity with other parsers listed here.
+            The part mappings are as follows:
+          </p>
+          <table class="table table-sm table-centered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th><a href="https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse">ParseResult</a> properties</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>href<td>geturl()
+              <tr><td>protocol<td>scheme
+              <tr><td>username<td>username
+              <tr><td>password<td>password
+              <tr><td>hostname<td>hostname
+              <tr><td>port<td>port
+              <tr><td>pathname<td>path
+              <tr><td>search<td>query
+              <tr><td>hash<td>fragment
+            </tbody>
+          </table>
+          <p>
+            Note: We ignore the <code>params</code> part, which exists in <a href="https://www.rfc-editor.org/rfc/rfc1738.html">RFC 1738</a>
+            but has no equivalent in other parsers and was removed in <a href="https://www.rfc-editor.org/rfc/rfc3986">RFC 3986</a>.
+          </p>
+        </dd>
+      </div>
+      <div>
+        <dt id=methodology-py-requests>Python requests</dt>
+
+        <dd>
+          <p>
+            This captures how Python library <a href="https://docs.python-requests.org/en/master/">Requests</a>' deals with request URLs.
+            Requests uses <a href="https://urllib3.readthedocs.io/">urllib3</a>, which is based on <a href="https://www.rfc-editor.org/rfc/rfc3986">RFC 3986</a>, to parse incoming URLs.
+            However, it does some additional normalization on top of urllib3, such as applying the <code>requote_uri()</code> function.
+            <abbr title="Internationalized Domain Names for Applications">IDNA</abbr> support in both Requests and urllib3 is provided through the <a href="https://github.com/kjd/idna">idna</a> package.
+            The part mappings are as follows:
+          </p>
+          <table class="table table-sm table-centered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th><a href="https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Url">urllib3.util.Url</a> properties</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>href<td>url
+              <tr><td>protocol<td>scheme
+              <tr><td>username<td>auth.split(:)[0]
+              <tr><td>password<td>auth.split(:)[1…].join(:)
+              <tr><td>hostname<td>host
+              <tr><td>port<td>port
+              <tr><td>pathname<td>path
+              <tr><td>search<td>query
+              <tr><td>hash<td>fragment
+            </tbody>
+          </table>
+        </dd>
+      </div>
+      <div>
+        <dt id=methodology-libcurl>libcurl</dt>
+
+        <dd>
+          <p>
+            This is libcurl's <a href="https://everything.curl.dev/libcurl/url">URL API</a>.
+            curl uses <a href="https://www.rfc-editor.org/rfc/rfc3986.html">RFC 3986</a> as the basis for its parser,
+            with some features of the <abbr title="Web Hypertext Application Technology Working Group">WHATWG</abbr> URL Standard mixed in,
+            as detailed on its <a href="https://curl.se/docs/url-syntax.html">URL Syntax</a> documentation page.
+            We created a simple C application "frontend" for the API and compiled it to WebAssembly using Emscripten.
+            While curl does <a href="https://curl.se/docs/url-syntax.html#idna">support</a> <abbr title="Internationalized Domain Names for Applications">IDNA</abbr> using the libidn2 library,
+            the functionality is not exposed through the URL API.
+          </p>
+          <p>
+            When parsing the URL, we use <code>CURLU_<wbr>NON_<wbr>SUPPORT_<wbr>SCHEME</code> and <code>CURLU_<wbr>URLENCODE</code> flags. When getting individual parts of the URL, we pass <code>0</code> as flags.
+            The part mappings are as follows:
+          </p>
+          <table class="table table-sm table-centered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th><a href="https://github.com/curl/curl/blob/curl-7_76_1/include/curl/urlapi.h#L53-L65">CURLUPart</a></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>href<td>CURLUPART_URL
+              <tr><td>protocol<td>CURLUPART_SCHEME
+              <tr><td>username<td>CURLUPART_USER
+              <tr><td>password<td>CURLUPART_PASSWORD
+              <tr><td>hostname<td>CURLUPART_HOST
+              <tr><td>port<td>CURLUPART_PORT
+              <tr><td>pathname<td>CURLUPART_PATH
+              <tr><td>search<td>CURLUPART_QUERY
+              <tr><td>hash<td>CURLUPART_FRAGMENT
+            </tbody>
+          </table>
+          <p>
+            Note: We ignore <code>CURLUPART_<wbr>OPTIONS</code>, <a href="https://curl.se/docs/url-syntax.html#userinfo">used</a> for IMAP/<wbr>POP3/<wbr>SMTP "login options." We also do not list <code>CURLUPART_<wbr>ZONEID</code> separately as it is included in <code>CURLUPART_<wbr>HOST</code>.
+          </p>
         </dd>
       </div>
       <div>
@@ -348,8 +404,7 @@
           This utility is, to a large extent, inspired by URL Viewer.
           URL part mapping is trivial, as whatwg-url exposes the same properties as a browser <code>URL</code> object.
         </dd>
-      </div>
-      <div>
+
         <dt id=methodology-your-browser>your browser</dt>
 
         <dd>
@@ -364,6 +419,5 @@
 
 <script src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" integrity="sha256-0WMZ9PF4b2hTF66Eglv/9H5Vwk6lnOG4AbmCJxo96WQ=" crossorigin=anonymous></script>
 <script>
-  anchors.options.icon = '§';
   anchors.add('h2[id], h3[id], h4[id], h5[id], h6[id], dt[id]');
 </script>
