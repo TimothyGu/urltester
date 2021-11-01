@@ -149,7 +149,9 @@
             We added a "Go net/http" entry to emulate how net/http handles a URL.
           </p>
           <p>
-            The part mappings are as follows:
+            The part mappings are as follows.
+            Go's url.URL object has multiple accessors for the path, query, and fragment components, each with a different level of encoded-ness;
+            we choose the same fields/methods as the <a href="https://pkg.go.dev/net/url#URL.String">URL.String()</a> serialization method.
           </p>
           <table class="table table-sm table-centered">
             <thead>
@@ -165,7 +167,7 @@
               <tr><td>password<td>User.Password()
               <tr><td>hostname<td>Hostname()
               <tr><td>port<td>Port()
-              <tr><td>pathname<td>EscapedPath() or Opaque
+              <tr><td>pathname<td>Opaque || EscapedPath()
               <tr><td>search<td>RawQuery
               <tr><td>hash<td>EscapedFragment()
             </tbody>
