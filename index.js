@@ -283,7 +283,6 @@ for (const { name, worker, options, tags } of parsers) {
 async function runAndUpdate({ firstTime = false, userInteraction = false } = {}) {
   let loadedFromHash = false;
   if (firstTime) {
-    debugger;
     const params = new URLSearchParams(location.hash.slice(1));
     if (params.has("input")) {
       loadedFromHash = true;
