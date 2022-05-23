@@ -118,10 +118,7 @@
     <ul>
       <li>Empty fragment: <a href="#input=https%3A%2F%2Fexample.com%2F%23">https://example.com/#</a> (Python, libcurl, Go)</li>
       <li>Path normalization: <a href="#input=https%3A%2F%2Fexample.com%2Ffoo%2F..%2Fbar">https://example.com/foo/../bar</a> (Python urlparse, Go, Node.js legacy)</li>
-      <li>
-        IDNA 2003 vs. 2008: <a href="#input=https%3A%2F%2Ffa%C3%9F.de%2F&filter=idna">https://faß.de/</a> (Chrome and Go net/http)
-        <small>(changing in <a href="https://github.com/golang/go/issues/46001">Go 1.18</a>)</small>
-      </li>
+      <li>IDNA 2003 vs. 2008: <a href="#input=https%3A%2F%2Ffa%C3%9F.de%2F&filter=idna">https://faß.de/</a> (Chrome)</li>
       <li>Query encoding: <a href="#input=https%3A%2F%2Fexample.com%2F%3F%3C%3E%22">https://example.com/?&lt;&gt;"</a> (libcurl and Go)</li>
       <li><code>file</code> URL with host (Windows UNC paths): <a href="#input=file%3A%2F%2Fserver01%2Fsage%2Fjobcosting">file://server01/sage/jobcosting</a> (libcurl and Firefox)</li>
       <li><code>file</code> URL path normalization with Windows drive letter: <a href="#input=file%3A%2F%2F%2FC%3A%2F..&filter=resolvepath">file:///C:/..</a> (Firefox vs. other browsers)</li>

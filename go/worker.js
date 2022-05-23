@@ -56,7 +56,7 @@ async function run(url, base, { useIDNA = false } = {}) {
   globalThis.fullOutput = "";
   let outputBuf = "";
   const decoder = new TextDecoder("utf-8");
-  global.fs.writeSync = (fd, buf) => {
+  globalThis.fs.writeSync = (fd, buf) => {
     const decoded = decoder.decode(buf);
     globalThis.fullOutput += decoded;
     outputBuf += decoded;
@@ -67,12 +67,12 @@ async function run(url, base, { useIDNA = false } = {}) {
     }
     return buf.length;
   };
-  global.fs.write = (fd, buf, offset, length, position, callback) => {
+  globalThis.fs.write = (fd, buf, offset, length, position, callback) => {
     if (offset !== 0 || length !== buf.length || position !== null) {
       callback(enosys());
       return;
     }
-    const n = global.fs.writeSync(fd, buf);
+    const n = globalThis.fs.writeSync(fd, buf);
     callback(null, n);
   };
 
