@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v16.6.1/lib/querystring.js
+// From https://github.com/nodejs/node/raw/v18.1.0/lib/querystring.js
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -193,7 +193,7 @@ function stringifyPrimitive(v) {
 /**
  * @param {string | number | bigint | boolean} v
  * @param {(v: string) => string} encode
- * @returns
+ * @returns {string}
  */
 function encodeStringified(v, encode) {
   if (typeof v === 'string')

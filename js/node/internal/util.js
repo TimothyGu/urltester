@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v17.0.1/lib/internal/util.js
+// From https://github.com/nodejs/node/raw/v18.1.0/lib/internal/util.js
 
 'use strict';
 

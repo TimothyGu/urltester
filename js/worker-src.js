@@ -3,7 +3,7 @@ import nodeURL from "./node/url.js"
 
 importScripts("../common/worker_common.js");
 
-const nodeURLVersion = "17.0.1";
+const nodeURLVersion = "18.1.0";
 const browserVersion = (() => {
   const ua = navigator.userAgent;
   let match = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
@@ -64,7 +64,7 @@ function specURLToJSON(url) {
     protocol: url.scheme === undefined ? "" : url.scheme + ":",
     username: url.user || "",
     password: url.pass || "",
-    hostname: url.host || "",
+    hostname: url.host ? url.host.join(".") : "",
     port: url.port === undefined ? "" : String(url.port),
     pathname: `${url.drive ? "/" + url.drive : ""}${url.root || ""}${url.dirs ? url.dirs.join("/") + "/" : ""}${url.file || ""}`,
     search: url.query ? "?" + url.query : "",

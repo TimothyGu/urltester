@@ -108,7 +108,7 @@ function E(sym, val, def, ...otherClasses) {
 function getMessage(key, args, self) {
   const msg = messages.get(key);
 
-  if (assert === undefined) assert = require('./assert');
+  assert ??= require('./assert');
 
   if (typeof msg === 'function') {
     assert(
@@ -236,7 +236,7 @@ E('ERR_INVALID_ARG_TYPE',
     } else if (typeof actual === 'function' && actual.name) {
       msg += `. Received function ${actual.name}`;
     } else if (typeof actual === 'object') {
-      if (actual.constructor && actual.constructor.name) {
+      if (actual.constructor?.name) {
         msg += `. Received an instance of ${actual.constructor.name}`;
       } else {
         const inspected = util.inspect(actual, { depth: -1 });
@@ -251,3 +251,9 @@ E('ERR_INVALID_ARG_TYPE',
     return msg;
   }, TypeError);
 E('ERR_INVALID_URI', 'URI malformed', URIError);
+E('ERR_INVALID_URL', function(input) {
+  this.input = input;
+  // Don't include URL in message.
+  // (See https://github.com/nodejs/node/pull/38614)
+  return 'Invalid URL';
+}, TypeError);

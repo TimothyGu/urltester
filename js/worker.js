@@ -6,24 +6,21 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
   var __esm = (fn, res) => function __init() {
-    return fn && (res = (0, fn[Object.keys(fn)[0]])(fn = 0)), res;
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
   };
   var __commonJS = (cb, mod) => function __require() {
-    return mod || (0, cb[Object.keys(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
-  var __reExport = (target, module, desc) => {
-    if (module && typeof module === "object" || typeof module === "function") {
-      for (let key of __getOwnPropNames(module))
-        if (!__hasOwnProp.call(target, key) && key !== "default")
-          __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
     }
-    return target;
+    return to;
   };
-  var __toModule = (module) => {
-    return __reExport(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", module && module.__esModule && "default" in module ? { get: () => module.default, enumerable: true } : { value: module, enumerable: true })), module);
-  };
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
 
   // shims.js
   var process;
@@ -43,8 +40,8 @@
   // node_modules/punycode/punycode.js
   var require_punycode = __commonJS({
     "node_modules/punycode/punycode.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var maxInt = 2147483647;
       var base = 36;
       var tMin = 1;
@@ -216,18 +213,18 @@
               error("overflow");
             }
             if (currentValue == n) {
-              let q = delta;
+              let q2 = delta;
               for (let k = base; ; k += base) {
                 const t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
-                if (q < t) {
+                if (q2 < t) {
                   break;
                 }
-                const qMinusT = q - t;
+                const qMinusT = q2 - t;
                 const baseMinusT = base - t;
                 output.push(stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0)));
-                q = floor(qMinusT / baseMinusT);
+                q2 = floor(qMinusT / baseMinusT);
               }
-              output.push(stringFromCharCode(digitToBasic(q, 0)));
+              output.push(stringFromCharCode(digitToBasic(q2, 0)));
               bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
               delta = 0;
               ++handledCPCount;
@@ -266,8 +263,8 @@
   // node/internal/primordials.js
   var require_primordials = __commonJS({
     "node/internal/primordials.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var ReflectApply = Reflect.apply;
       function uncurryThis(func) {
         return (thisArg, ...args) => ReflectApply(func, thisArg, args);
@@ -313,8 +310,8 @@
   // node_modules/tr46/lib/regexes.js
   var require_regexes = __commonJS({
     "node_modules/tr46/lib/regexes.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var combiningMarks = /[\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u07FD\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u0898-\u089F\u08CA-\u08E1\u08E3-\u0903\u093A-\u093C\u093E-\u094F\u0951-\u0957\u0962\u0963\u0981-\u0983\u09BC\u09BE-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u09FE\u0A01-\u0A03\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AE2\u0AE3\u0AFA-\u0AFF\u0B01-\u0B03\u0B3C\u0B3E-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B55-\u0B57\u0B62\u0B63\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0C00-\u0C04\u0C3C\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81-\u0C83\u0CBC\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CE2\u0CE3\u0D00-\u0D03\u0D3B\u0D3C\u0D3E-\u0D44\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0D62\u0D63\u0D81-\u0D83\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2\u0DF3\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EBC\u0EC8-\u0ECD\u0F18\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102B-\u103E\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F\u109A-\u109D\u135D-\u135F\u1712-\u1715\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4-\u17D3\u17DD\u180B-\u180D\u180F\u1885\u1886\u18A9\u1920-\u192B\u1930-\u193B\u1A17-\u1A1B\u1A55-\u1A5E\u1A60-\u1A7C\u1A7F\u1AB0-\u1ACE\u1B00-\u1B04\u1B34-\u1B44\u1B6B-\u1B73\u1B80-\u1B82\u1BA1-\u1BAD\u1BE6-\u1BF3\u1C24-\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE8\u1CED\u1CF4\u1CF7-\u1CF9\u1DC0-\u1DFF\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302F\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69E\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA823-\uA827\uA82C\uA880\uA881\uA8B4-\uA8C5\uA8E0-\uA8F1\uA8FF\uA926-\uA92D\uA947-\uA953\uA980-\uA983\uA9B3-\uA9C0\uA9E5\uAA29-\uAA36\uAA43\uAA4C\uAA4D\uAA7B-\uAA7D\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEB-\uAAEF\uAAF5\uAAF6\uABE3-\uABEA\uABEC\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2F\u{101FD}\u{102E0}\u{10376}-\u{1037A}\u{10A01}-\u{10A03}\u{10A05}\u{10A06}\u{10A0C}-\u{10A0F}\u{10A38}-\u{10A3A}\u{10A3F}\u{10AE5}\u{10AE6}\u{10D24}-\u{10D27}\u{10EAB}\u{10EAC}\u{10F46}-\u{10F50}\u{10F82}-\u{10F85}\u{11000}-\u{11002}\u{11038}-\u{11046}\u{11070}\u{11073}\u{11074}\u{1107F}-\u{11082}\u{110B0}-\u{110BA}\u{110C2}\u{11100}-\u{11102}\u{11127}-\u{11134}\u{11145}\u{11146}\u{11173}\u{11180}-\u{11182}\u{111B3}-\u{111C0}\u{111C9}-\u{111CC}\u{111CE}\u{111CF}\u{1122C}-\u{11237}\u{1123E}\u{112DF}-\u{112EA}\u{11300}-\u{11303}\u{1133B}\u{1133C}\u{1133E}-\u{11344}\u{11347}\u{11348}\u{1134B}-\u{1134D}\u{11357}\u{11362}\u{11363}\u{11366}-\u{1136C}\u{11370}-\u{11374}\u{11435}-\u{11446}\u{1145E}\u{114B0}-\u{114C3}\u{115AF}-\u{115B5}\u{115B8}-\u{115C0}\u{115DC}\u{115DD}\u{11630}-\u{11640}\u{116AB}-\u{116B7}\u{1171D}-\u{1172B}\u{1182C}-\u{1183A}\u{11930}-\u{11935}\u{11937}\u{11938}\u{1193B}-\u{1193E}\u{11940}\u{11942}\u{11943}\u{119D1}-\u{119D7}\u{119DA}-\u{119E0}\u{119E4}\u{11A01}-\u{11A0A}\u{11A33}-\u{11A39}\u{11A3B}-\u{11A3E}\u{11A47}\u{11A51}-\u{11A5B}\u{11A8A}-\u{11A99}\u{11C2F}-\u{11C36}\u{11C38}-\u{11C3F}\u{11C92}-\u{11CA7}\u{11CA9}-\u{11CB6}\u{11D31}-\u{11D36}\u{11D3A}\u{11D3C}\u{11D3D}\u{11D3F}-\u{11D45}\u{11D47}\u{11D8A}-\u{11D8E}\u{11D90}\u{11D91}\u{11D93}-\u{11D97}\u{11EF3}-\u{11EF6}\u{16AF0}-\u{16AF4}\u{16B30}-\u{16B36}\u{16F4F}\u{16F51}-\u{16F87}\u{16F8F}-\u{16F92}\u{16FE4}\u{16FF0}\u{16FF1}\u{1BC9D}\u{1BC9E}\u{1CF00}-\u{1CF2D}\u{1CF30}-\u{1CF46}\u{1D165}-\u{1D169}\u{1D16D}-\u{1D172}\u{1D17B}-\u{1D182}\u{1D185}-\u{1D18B}\u{1D1AA}-\u{1D1AD}\u{1D242}-\u{1D244}\u{1DA00}-\u{1DA36}\u{1DA3B}-\u{1DA6C}\u{1DA75}\u{1DA84}\u{1DA9B}-\u{1DA9F}\u{1DAA1}-\u{1DAAF}\u{1E000}-\u{1E006}\u{1E008}-\u{1E018}\u{1E01B}-\u{1E021}\u{1E023}\u{1E024}\u{1E026}-\u{1E02A}\u{1E130}-\u{1E136}\u{1E2AE}\u{1E2EC}-\u{1E2EF}\u{1E8D0}-\u{1E8D6}\u{1E944}-\u{1E94A}\u{E0100}-\u{E01EF}]/u;
       var combiningClassVirama = /[\u094D\u09CD\u0A4D\u0ACD\u0B4D\u0BCD\u0C4D\u0CCD\u0D3B\u0D3C\u0D4D\u0DCA\u0E3A\u0EBA\u0F84\u1039\u103A\u1714\u1734\u17D2\u1A60\u1B44\u1BAA\u1BAB\u1BF2\u1BF3\u2D7F\uA806\uA8C4\uA953\uA9C0\uAAF6\uABED\u{10A3F}\u{11046}\u{1107F}\u{110B9}\u{11133}\u{11134}\u{111C0}\u{11235}\u{112EA}\u{1134D}\u{11442}\u{114C2}\u{115BF}\u{1163F}\u{116B6}\u{1172B}\u{11839}\u{119E0}\u{11A34}\u{11A47}\u{11A99}\u{11C3F}\u{11D44}\u{11D45}\u{11D97}]/u;
       var validZWNJ = /[\u0620\u0626\u0628\u062A-\u062E\u0633-\u063F\u0641-\u0647\u0649\u064A\u066E\u066F\u0678-\u0687\u069A-\u06BF\u06C1\u06C2\u06CC\u06CE\u06D0\u06D1\u06FA-\u06FC\u06FF\u0712-\u0714\u071A-\u071D\u071F-\u0727\u0729\u072B\u072D\u072E\u074E-\u0758\u075C-\u076A\u076D-\u0770\u0772\u0775-\u0777\u077A-\u077F\u07CA-\u07EA\u0841-\u0845\u0848\u084A-\u0853\u0855\u0860\u0862-\u0865\u0868\u08A0-\u08A9\u08AF\u08B0\u08B3\u08B4\u08B6-\u08B8\u08BA-\u08BD\u1807\u1820-\u1878\u1887-\u18A8\u18AA\uA840-\uA872\u{10AC0}-\u{10AC4}\u{10ACD}\u{10AD3}-\u{10ADC}\u{10ADE}-\u{10AE0}\u{10AEB}-\u{10AEE}\u{10B80}\u{10B82}\u{10B86}-\u{10B88}\u{10B8A}\u{10B8B}\u{10B8D}\u{10B90}\u{10BAD}\u{10BAE}\u{10D00}-\u{10D21}\u{10D23}\u{10F30}-\u{10F32}\u{10F34}-\u{10F44}\u{10F51}-\u{10F53}\u{1E900}-\u{1E943}][\xAD\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u061C\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u070F\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u07FD\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u08D3-\u08E1\u08E3-\u0902\u093A\u093C\u0941-\u0948\u094D\u0951-\u0957\u0962\u0963\u0981\u09BC\u09C1-\u09C4\u09CD\u09E2\u09E3\u09FE\u0A01\u0A02\u0A3C\u0A41\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81\u0A82\u0ABC\u0AC1-\u0AC5\u0AC7\u0AC8\u0ACD\u0AE2\u0AE3\u0AFA-\u0AFF\u0B01\u0B3C\u0B3F\u0B41-\u0B44\u0B4D\u0B56\u0B62\u0B63\u0B82\u0BC0\u0BCD\u0C00\u0C04\u0C3E-\u0C40\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81\u0CBC\u0CBF\u0CC6\u0CCC\u0CCD\u0CE2\u0CE3\u0D00\u0D01\u0D3B\u0D3C\u0D41-\u0D44\u0D4D\u0D62\u0D63\u0DCA\u0DD2-\u0DD4\u0DD6\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EBC\u0EC8-\u0ECD\u0F18\u0F19\u0F35\u0F37\u0F39\u0F71-\u0F7E\u0F80-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102D-\u1030\u1032-\u1037\u1039\u103A\u103D\u103E\u1058\u1059\u105E-\u1060\u1071-\u1074\u1082\u1085\u1086\u108D\u109D\u135D-\u135F\u1712-\u1714\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4\u17B5\u17B7-\u17BD\u17C6\u17C9-\u17D3\u17DD\u180B-\u180D\u1885\u1886\u18A9\u1920-\u1922\u1927\u1928\u1932\u1939-\u193B\u1A17\u1A18\u1A1B\u1A56\u1A58-\u1A5E\u1A60\u1A62\u1A65-\u1A6C\u1A73-\u1A7C\u1A7F\u1AB0-\u1ABE\u1B00-\u1B03\u1B34\u1B36-\u1B3A\u1B3C\u1B42\u1B6B-\u1B73\u1B80\u1B81\u1BA2-\u1BA5\u1BA8\u1BA9\u1BAB-\u1BAD\u1BE6\u1BE8\u1BE9\u1BED\u1BEF-\u1BF1\u1C2C-\u1C33\u1C36\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE0\u1CE2-\u1CE8\u1CED\u1CF4\u1CF8\u1CF9\u1DC0-\u1DF9\u1DFB-\u1DFF\u200B\u200E\u200F\u202A-\u202E\u2060-\u2064\u206A-\u206F\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302D\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69E\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA825\uA826\uA8C4\uA8C5\uA8E0-\uA8F1\uA8FF\uA926-\uA92D\uA947-\uA951\uA980-\uA982\uA9B3\uA9B6-\uA9B9\uA9BC\uA9BD\uA9E5\uAA29-\uAA2E\uAA31\uAA32\uAA35\uAA36\uAA43\uAA4C\uAA7C\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEC\uAAED\uAAF6\uABE5\uABE8\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2F\uFEFF\uFFF9-\uFFFB\u{101FD}\u{102E0}\u{10376}-\u{1037A}\u{10A01}-\u{10A03}\u{10A05}\u{10A06}\u{10A0C}-\u{10A0F}\u{10A38}-\u{10A3A}\u{10A3F}\u{10AE5}\u{10AE6}\u{10D24}-\u{10D27}\u{10F46}-\u{10F50}\u{11001}\u{11038}-\u{11046}\u{1107F}-\u{11081}\u{110B3}-\u{110B6}\u{110B9}\u{110BA}\u{11100}-\u{11102}\u{11127}-\u{1112B}\u{1112D}-\u{11134}\u{11173}\u{11180}\u{11181}\u{111B6}-\u{111BE}\u{111C9}-\u{111CC}\u{1122F}-\u{11231}\u{11234}\u{11236}\u{11237}\u{1123E}\u{112DF}\u{112E3}-\u{112EA}\u{11300}\u{11301}\u{1133B}\u{1133C}\u{11340}\u{11366}-\u{1136C}\u{11370}-\u{11374}\u{11438}-\u{1143F}\u{11442}-\u{11444}\u{11446}\u{1145E}\u{114B3}-\u{114B8}\u{114BA}\u{114BF}\u{114C0}\u{114C2}\u{114C3}\u{115B2}-\u{115B5}\u{115BC}\u{115BD}\u{115BF}\u{115C0}\u{115DC}\u{115DD}\u{11633}-\u{1163A}\u{1163D}\u{1163F}\u{11640}\u{116AB}\u{116AD}\u{116B0}-\u{116B5}\u{116B7}\u{1171D}-\u{1171F}\u{11722}-\u{11725}\u{11727}-\u{1172B}\u{1182F}-\u{11837}\u{11839}\u{1183A}\u{119D4}-\u{119D7}\u{119DA}\u{119DB}\u{119E0}\u{11A01}-\u{11A0A}\u{11A33}-\u{11A38}\u{11A3B}-\u{11A3E}\u{11A47}\u{11A51}-\u{11A56}\u{11A59}-\u{11A5B}\u{11A8A}-\u{11A96}\u{11A98}\u{11A99}\u{11C30}-\u{11C36}\u{11C38}-\u{11C3D}\u{11C3F}\u{11C92}-\u{11CA7}\u{11CAA}-\u{11CB0}\u{11CB2}\u{11CB3}\u{11CB5}\u{11CB6}\u{11D31}-\u{11D36}\u{11D3A}\u{11D3C}\u{11D3D}\u{11D3F}-\u{11D45}\u{11D47}\u{11D90}\u{11D91}\u{11D95}\u{11D97}\u{11EF3}\u{11EF4}\u{13430}-\u{13438}\u{16AF0}-\u{16AF4}\u{16B30}-\u{16B36}\u{16F4F}\u{16F8F}-\u{16F92}\u{1BC9D}\u{1BC9E}\u{1BCA0}-\u{1BCA3}\u{1D167}-\u{1D169}\u{1D173}-\u{1D182}\u{1D185}-\u{1D18B}\u{1D1AA}-\u{1D1AD}\u{1D242}-\u{1D244}\u{1DA00}-\u{1DA36}\u{1DA3B}-\u{1DA6C}\u{1DA75}\u{1DA84}\u{1DA9B}-\u{1DA9F}\u{1DAA1}-\u{1DAAF}\u{1E000}-\u{1E006}\u{1E008}-\u{1E018}\u{1E01B}-\u{1E021}\u{1E023}\u{1E024}\u{1E026}-\u{1E02A}\u{1E130}-\u{1E136}\u{1E2EC}-\u{1E2EF}\u{1E8D0}-\u{1E8D6}\u{1E944}-\u{1E94B}\u{E0001}\u{E0020}-\u{E007F}\u{E0100}-\u{E01EF}]*\u200C[\xAD\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u061C\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u070F\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u07FD\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u08D3-\u08E1\u08E3-\u0902\u093A\u093C\u0941-\u0948\u094D\u0951-\u0957\u0962\u0963\u0981\u09BC\u09C1-\u09C4\u09CD\u09E2\u09E3\u09FE\u0A01\u0A02\u0A3C\u0A41\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81\u0A82\u0ABC\u0AC1-\u0AC5\u0AC7\u0AC8\u0ACD\u0AE2\u0AE3\u0AFA-\u0AFF\u0B01\u0B3C\u0B3F\u0B41-\u0B44\u0B4D\u0B56\u0B62\u0B63\u0B82\u0BC0\u0BCD\u0C00\u0C04\u0C3E-\u0C40\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81\u0CBC\u0CBF\u0CC6\u0CCC\u0CCD\u0CE2\u0CE3\u0D00\u0D01\u0D3B\u0D3C\u0D41-\u0D44\u0D4D\u0D62\u0D63\u0DCA\u0DD2-\u0DD4\u0DD6\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EBC\u0EC8-\u0ECD\u0F18\u0F19\u0F35\u0F37\u0F39\u0F71-\u0F7E\u0F80-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102D-\u1030\u1032-\u1037\u1039\u103A\u103D\u103E\u1058\u1059\u105E-\u1060\u1071-\u1074\u1082\u1085\u1086\u108D\u109D\u135D-\u135F\u1712-\u1714\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4\u17B5\u17B7-\u17BD\u17C6\u17C9-\u17D3\u17DD\u180B-\u180D\u1885\u1886\u18A9\u1920-\u1922\u1927\u1928\u1932\u1939-\u193B\u1A17\u1A18\u1A1B\u1A56\u1A58-\u1A5E\u1A60\u1A62\u1A65-\u1A6C\u1A73-\u1A7C\u1A7F\u1AB0-\u1ABE\u1B00-\u1B03\u1B34\u1B36-\u1B3A\u1B3C\u1B42\u1B6B-\u1B73\u1B80\u1B81\u1BA2-\u1BA5\u1BA8\u1BA9\u1BAB-\u1BAD\u1BE6\u1BE8\u1BE9\u1BED\u1BEF-\u1BF1\u1C2C-\u1C33\u1C36\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE0\u1CE2-\u1CE8\u1CED\u1CF4\u1CF8\u1CF9\u1DC0-\u1DF9\u1DFB-\u1DFF\u200B\u200E\u200F\u202A-\u202E\u2060-\u2064\u206A-\u206F\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302D\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69E\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA825\uA826\uA8C4\uA8C5\uA8E0-\uA8F1\uA8FF\uA926-\uA92D\uA947-\uA951\uA980-\uA982\uA9B3\uA9B6-\uA9B9\uA9BC\uA9BD\uA9E5\uAA29-\uAA2E\uAA31\uAA32\uAA35\uAA36\uAA43\uAA4C\uAA7C\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEC\uAAED\uAAF6\uABE5\uABE8\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2F\uFEFF\uFFF9-\uFFFB\u{101FD}\u{102E0}\u{10376}-\u{1037A}\u{10A01}-\u{10A03}\u{10A05}\u{10A06}\u{10A0C}-\u{10A0F}\u{10A38}-\u{10A3A}\u{10A3F}\u{10AE5}\u{10AE6}\u{10D24}-\u{10D27}\u{10F46}-\u{10F50}\u{11001}\u{11038}-\u{11046}\u{1107F}-\u{11081}\u{110B3}-\u{110B6}\u{110B9}\u{110BA}\u{11100}-\u{11102}\u{11127}-\u{1112B}\u{1112D}-\u{11134}\u{11173}\u{11180}\u{11181}\u{111B6}-\u{111BE}\u{111C9}-\u{111CC}\u{1122F}-\u{11231}\u{11234}\u{11236}\u{11237}\u{1123E}\u{112DF}\u{112E3}-\u{112EA}\u{11300}\u{11301}\u{1133B}\u{1133C}\u{11340}\u{11366}-\u{1136C}\u{11370}-\u{11374}\u{11438}-\u{1143F}\u{11442}-\u{11444}\u{11446}\u{1145E}\u{114B3}-\u{114B8}\u{114BA}\u{114BF}\u{114C0}\u{114C2}\u{114C3}\u{115B2}-\u{115B5}\u{115BC}\u{115BD}\u{115BF}\u{115C0}\u{115DC}\u{115DD}\u{11633}-\u{1163A}\u{1163D}\u{1163F}\u{11640}\u{116AB}\u{116AD}\u{116B0}-\u{116B5}\u{116B7}\u{1171D}-\u{1171F}\u{11722}-\u{11725}\u{11727}-\u{1172B}\u{1182F}-\u{11837}\u{11839}\u{1183A}\u{119D4}-\u{119D7}\u{119DA}\u{119DB}\u{119E0}\u{11A01}-\u{11A0A}\u{11A33}-\u{11A38}\u{11A3B}-\u{11A3E}\u{11A47}\u{11A51}-\u{11A56}\u{11A59}-\u{11A5B}\u{11A8A}-\u{11A96}\u{11A98}\u{11A99}\u{11C30}-\u{11C36}\u{11C38}-\u{11C3D}\u{11C3F}\u{11C92}-\u{11CA7}\u{11CAA}-\u{11CB0}\u{11CB2}\u{11CB3}\u{11CB5}\u{11CB6}\u{11D31}-\u{11D36}\u{11D3A}\u{11D3C}\u{11D3D}\u{11D3F}-\u{11D45}\u{11D47}\u{11D90}\u{11D91}\u{11D95}\u{11D97}\u{11EF3}\u{11EF4}\u{13430}-\u{13438}\u{16AF0}-\u{16AF4}\u{16B30}-\u{16B36}\u{16F4F}\u{16F8F}-\u{16F92}\u{1BC9D}\u{1BC9E}\u{1BCA0}-\u{1BCA3}\u{1D167}-\u{1D169}\u{1D173}-\u{1D182}\u{1D185}-\u{1D18B}\u{1D1AA}-\u{1D1AD}\u{1D242}-\u{1D244}\u{1DA00}-\u{1DA36}\u{1DA3B}-\u{1DA6C}\u{1DA75}\u{1DA84}\u{1DA9B}-\u{1DA9F}\u{1DAA1}-\u{1DAAF}\u{1E000}-\u{1E006}\u{1E008}-\u{1E018}\u{1E01B}-\u{1E021}\u{1E023}\u{1E024}\u{1E026}-\u{1E02A}\u{1E130}-\u{1E136}\u{1E2EC}-\u{1E2EF}\u{1E8D0}-\u{1E8D6}\u{1E944}-\u{1E94B}\u{E0001}\u{E0020}-\u{E007F}\u{E0100}-\u{E01EF}]*[\u0620\u0622-\u063F\u0641-\u064A\u066E\u066F\u0671-\u0673\u0675-\u06D3\u06D5\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u077F\u07CA-\u07EA\u0840-\u0855\u0860\u0862-\u0865\u0867-\u086A\u08A0-\u08AC\u08AE-\u08B4\u08B6-\u08BD\u1807\u1820-\u1878\u1887-\u18A8\u18AA\uA840-\uA871\u{10AC0}-\u{10AC5}\u{10AC7}\u{10AC9}\u{10ACA}\u{10ACE}-\u{10AD6}\u{10AD8}-\u{10AE1}\u{10AE4}\u{10AEB}-\u{10AEF}\u{10B80}-\u{10B91}\u{10BA9}-\u{10BAE}\u{10D01}-\u{10D23}\u{10F30}-\u{10F44}\u{10F51}-\u{10F54}\u{1E900}-\u{1E943}]/u;
@@ -354,8 +351,8 @@
   // node_modules/tr46/lib/statusMapping.js
   var require_statusMapping = __commonJS({
     "node_modules/tr46/lib/statusMapping.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       module.exports.STATUS_MAPPING = {
         mapped: 1,
         valid: 2,
@@ -371,8 +368,8 @@
   // node_modules/tr46/index.js
   var require_tr46 = __commonJS({
     "node_modules/tr46/index.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var punycode3 = require_punycode();
       var regexes = require_regexes();
       var mappingTable = require_mappingTable();
@@ -620,8 +617,8 @@
   // node/internal/idna.js
   var require_idna = __commonJS({
     "node/internal/idna.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var tr46 = require_tr46();
       function toASCII(domain, lenient = false) {
         const options = lenient ? void 0 : {
@@ -643,8 +640,8 @@
   // node_modules/has-symbols/shams.js
   var require_shams = __commonJS({
     "node_modules/has-symbols/shams.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       module.exports = function hasSymbols() {
         if (typeof Symbol !== "function" || typeof Object.getOwnPropertySymbols !== "function") {
           return false;
@@ -696,8 +693,8 @@
   // node_modules/has-tostringtag/shams.js
   var require_shams2 = __commonJS({
     "node_modules/has-tostringtag/shams.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var hasSymbols = require_shams();
       module.exports = function hasToStringTagShams() {
         return hasSymbols() && !!Symbol.toStringTag;
@@ -708,8 +705,8 @@
   // node_modules/has-symbols/index.js
   var require_has_symbols = __commonJS({
     "node_modules/has-symbols/index.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var origSymbol = typeof Symbol !== "undefined" && Symbol;
       var hasSymbolSham = require_shams();
       module.exports = function hasNativeSymbols() {
@@ -733,8 +730,8 @@
   // node_modules/function-bind/implementation.js
   var require_implementation = __commonJS({
     "node_modules/function-bind/implementation.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var ERROR_MESSAGE = "Function.prototype.bind called on incompatible ";
       var slice = Array.prototype.slice;
       var toStr = Object.prototype.toString;
@@ -778,8 +775,8 @@
   // node_modules/function-bind/index.js
   var require_function_bind = __commonJS({
     "node_modules/function-bind/index.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var implementation = require_implementation();
       module.exports = Function.prototype.bind || implementation;
     }
@@ -788,8 +785,8 @@
   // node_modules/has/src/index.js
   var require_src = __commonJS({
     "node_modules/has/src/index.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var bind = require_function_bind();
       module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
     }
@@ -798,8 +795,8 @@
   // node_modules/get-intrinsic/index.js
   var require_get_intrinsic = __commonJS({
     "node_modules/get-intrinsic/index.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var undefined2;
       var $SyntaxError = SyntaxError;
       var $Function = Function;
@@ -874,7 +871,7 @@
         "%IteratorPrototype%": hasSymbols ? getProto(getProto([][Symbol.iterator]())) : undefined2,
         "%JSON%": typeof JSON === "object" ? JSON : undefined2,
         "%Map%": typeof Map === "undefined" ? undefined2 : Map,
-        "%MapIteratorPrototype%": typeof Map === "undefined" || !hasSymbols ? undefined2 : getProto(new Map()[Symbol.iterator]()),
+        "%MapIteratorPrototype%": typeof Map === "undefined" || !hasSymbols ? undefined2 : getProto((/* @__PURE__ */ new Map())[Symbol.iterator]()),
         "%Math%": Math,
         "%Number%": Number,
         "%Object%": Object,
@@ -887,7 +884,7 @@
         "%Reflect%": typeof Reflect === "undefined" ? undefined2 : Reflect,
         "%RegExp%": RegExp,
         "%Set%": typeof Set === "undefined" ? undefined2 : Set,
-        "%SetIteratorPrototype%": typeof Set === "undefined" || !hasSymbols ? undefined2 : getProto(new Set()[Symbol.iterator]()),
+        "%SetIteratorPrototype%": typeof Set === "undefined" || !hasSymbols ? undefined2 : getProto((/* @__PURE__ */ new Set())[Symbol.iterator]()),
         "%SharedArrayBuffer%": typeof SharedArrayBuffer === "undefined" ? undefined2 : SharedArrayBuffer,
         "%String%": String,
         "%StringIteratorPrototype%": hasSymbols ? getProto(""[Symbol.iterator]()) : undefined2,
@@ -1089,8 +1086,8 @@
   // node_modules/call-bind/index.js
   var require_call_bind = __commonJS({
     "node_modules/call-bind/index.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var bind = require_function_bind();
       var GetIntrinsic = require_get_intrinsic();
       var $apply = GetIntrinsic("%Function.prototype.apply%");
@@ -1130,8 +1127,8 @@
   // node_modules/call-bind/callBound.js
   var require_callBound = __commonJS({
     "node_modules/call-bind/callBound.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var GetIntrinsic = require_get_intrinsic();
       var callBind = require_call_bind();
       var $indexOf = callBind(GetIntrinsic("String.prototype.indexOf"));
@@ -1148,8 +1145,8 @@
   // node_modules/is-arguments/index.js
   var require_is_arguments = __commonJS({
     "node_modules/is-arguments/index.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var hasToStringTag = require_shams2()();
       var callBound = require_callBound();
       var $toString = callBound("Object.prototype.toString");
@@ -1176,8 +1173,8 @@
   // node_modules/is-generator-function/index.js
   var require_is_generator_function = __commonJS({
     "node_modules/is-generator-function/index.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var toStr = Object.prototype.toString;
       var fnToStr = Function.prototype.toString;
       var isFnRegex = /^\s*(?:function)?\*/;
@@ -1216,37 +1213,169 @@
     }
   });
 
-  // node_modules/foreach/index.js
-  var require_foreach = __commonJS({
-    "node_modules/foreach/index.js"(exports, module) {
+  // node_modules/is-callable/index.js
+  var require_is_callable = __commonJS({
+    "node_modules/is-callable/index.js"(exports, module) {
+      "use strict";
       init_shims();
-      var hasOwn = Object.prototype.hasOwnProperty;
-      var toString = Object.prototype.toString;
-      module.exports = function forEach(obj, fn, ctx) {
-        if (toString.call(fn) !== "[object Function]") {
-          throw new TypeError("iterator must be a function");
-        }
-        var l = obj.length;
-        if (l === +l) {
-          for (var i = 0; i < l; i++) {
-            fn.call(ctx, obj[i], i, obj);
+      var fnToStr = Function.prototype.toString;
+      var reflectApply = typeof Reflect === "object" && Reflect !== null && Reflect.apply;
+      var badArrayLike;
+      var isCallableMarker;
+      if (typeof reflectApply === "function" && typeof Object.defineProperty === "function") {
+        try {
+          badArrayLike = Object.defineProperty({}, "length", {
+            get: function() {
+              throw isCallableMarker;
+            }
+          });
+          isCallableMarker = {};
+          reflectApply(function() {
+            throw 42;
+          }, null, badArrayLike);
+        } catch (_) {
+          if (_ !== isCallableMarker) {
+            reflectApply = null;
           }
-        } else {
-          for (var k in obj) {
-            if (hasOwn.call(obj, k)) {
-              fn.call(ctx, obj[k], k, obj);
+        }
+      } else {
+        reflectApply = null;
+      }
+      var constructorRegex = /^\s*class\b/;
+      var isES6ClassFn = function isES6ClassFunction(value) {
+        try {
+          var fnStr = fnToStr.call(value);
+          return constructorRegex.test(fnStr);
+        } catch (e) {
+          return false;
+        }
+      };
+      var tryFunctionObject = function tryFunctionToStr(value) {
+        try {
+          if (isES6ClassFn(value)) {
+            return false;
+          }
+          fnToStr.call(value);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      };
+      var toStr = Object.prototype.toString;
+      var fnClass = "[object Function]";
+      var genClass = "[object GeneratorFunction]";
+      var hasToStringTag = typeof Symbol === "function" && !!Symbol.toStringTag;
+      var documentDotAll = typeof document === "object" && typeof document.all === "undefined" && document.all !== void 0 ? document.all : {};
+      module.exports = reflectApply ? function isCallable(value) {
+        if (value === documentDotAll) {
+          return true;
+        }
+        if (!value) {
+          return false;
+        }
+        if (typeof value !== "function" && typeof value !== "object") {
+          return false;
+        }
+        if (typeof value === "function" && !value.prototype) {
+          return true;
+        }
+        try {
+          reflectApply(value, null, badArrayLike);
+        } catch (e) {
+          if (e !== isCallableMarker) {
+            return false;
+          }
+        }
+        return !isES6ClassFn(value);
+      } : function isCallable(value) {
+        if (value === documentDotAll) {
+          return true;
+        }
+        if (!value) {
+          return false;
+        }
+        if (typeof value !== "function" && typeof value !== "object") {
+          return false;
+        }
+        if (typeof value === "function" && !value.prototype) {
+          return true;
+        }
+        if (hasToStringTag) {
+          return tryFunctionObject(value);
+        }
+        if (isES6ClassFn(value)) {
+          return false;
+        }
+        var strClass = toStr.call(value);
+        return strClass === fnClass || strClass === genClass;
+      };
+    }
+  });
+
+  // node_modules/for-each/index.js
+  var require_for_each = __commonJS({
+    "node_modules/for-each/index.js"(exports, module) {
+      "use strict";
+      init_shims();
+      var isCallable = require_is_callable();
+      var toStr = Object.prototype.toString;
+      var hasOwnProperty = Object.prototype.hasOwnProperty;
+      var forEachArray = function forEachArray2(array, iterator, receiver) {
+        for (var i = 0, len = array.length; i < len; i++) {
+          if (hasOwnProperty.call(array, i)) {
+            if (receiver == null) {
+              iterator(array[i], i, array);
+            } else {
+              iterator.call(receiver, array[i], i, array);
             }
           }
         }
       };
+      var forEachString = function forEachString2(string, iterator, receiver) {
+        for (var i = 0, len = string.length; i < len; i++) {
+          if (receiver == null) {
+            iterator(string.charAt(i), i, string);
+          } else {
+            iterator.call(receiver, string.charAt(i), i, string);
+          }
+        }
+      };
+      var forEachObject = function forEachObject2(object, iterator, receiver) {
+        for (var k in object) {
+          if (hasOwnProperty.call(object, k)) {
+            if (receiver == null) {
+              iterator(object[k], k, object);
+            } else {
+              iterator.call(receiver, object[k], k, object);
+            }
+          }
+        }
+      };
+      var forEach = function forEach2(list, iterator, thisArg) {
+        if (!isCallable(iterator)) {
+          throw new TypeError("iterator must be a function");
+        }
+        var receiver;
+        if (arguments.length >= 3) {
+          receiver = thisArg;
+        }
+        if (toStr.call(list) === "[object Array]") {
+          forEachArray(list, iterator, receiver);
+        } else if (typeof list === "string") {
+          forEachString(list, iterator, receiver);
+        } else {
+          forEachObject(list, iterator, receiver);
+        }
+      };
+      module.exports = forEach;
     }
   });
 
   // node_modules/available-typed-arrays/index.js
   var require_available_typed_arrays = __commonJS({
     "node_modules/available-typed-arrays/index.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var possibleNames = [
         "BigInt64Array",
         "BigUint64Array",
@@ -1276,8 +1405,8 @@
   // node_modules/es-abstract/helpers/getOwnPropertyDescriptor.js
   var require_getOwnPropertyDescriptor = __commonJS({
     "node_modules/es-abstract/helpers/getOwnPropertyDescriptor.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var GetIntrinsic = require_get_intrinsic();
       var $gOPD = GetIntrinsic("%Object.getOwnPropertyDescriptor%", true);
       if ($gOPD) {
@@ -1294,9 +1423,9 @@
   // node_modules/is-typed-array/index.js
   var require_is_typed_array = __commonJS({
     "node_modules/is-typed-array/index.js"(exports, module) {
-      init_shims();
       "use strict";
-      var forEach = require_foreach();
+      init_shims();
+      var forEach = require_for_each();
       var availableTypedArrays = require_available_typed_arrays();
       var callBound = require_callBound();
       var $toString = callBound("Object.prototype.toString");
@@ -1360,9 +1489,9 @@
   // node_modules/which-typed-array/index.js
   var require_which_typed_array = __commonJS({
     "node_modules/which-typed-array/index.js"(exports, module) {
-      init_shims();
       "use strict";
-      var forEach = require_foreach();
+      init_shims();
+      var forEach = require_for_each();
       var availableTypedArrays = require_available_typed_arrays();
       var callBound = require_callBound();
       var $toString = callBound("Object.prototype.toString");
@@ -1420,8 +1549,8 @@
   // node_modules/util/support/types.js
   var require_types = __commonJS({
     "node_modules/util/support/types.js"(exports) {
-      init_shims();
       "use strict";
+      init_shims();
       var isArgumentsObject = require_is_arguments();
       var isGeneratorFunction = require_is_generator_function();
       var whichTypedArray = require_which_typed_array();
@@ -1515,7 +1644,7 @@
       function isMapToString(value) {
         return ObjectToString(value) === "[object Map]";
       }
-      isMapToString.working = typeof Map !== "undefined" && isMapToString(new Map());
+      isMapToString.working = typeof Map !== "undefined" && isMapToString(/* @__PURE__ */ new Map());
       function isMap(value) {
         if (typeof Map === "undefined") {
           return false;
@@ -1526,7 +1655,7 @@
       function isSetToString(value) {
         return ObjectToString(value) === "[object Set]";
       }
-      isSetToString.working = typeof Set !== "undefined" && isSetToString(new Set());
+      isSetToString.working = typeof Set !== "undefined" && isSetToString(/* @__PURE__ */ new Set());
       function isSet(value) {
         if (typeof Set === "undefined") {
           return false;
@@ -1537,7 +1666,7 @@
       function isWeakMapToString(value) {
         return ObjectToString(value) === "[object WeakMap]";
       }
-      isWeakMapToString.working = typeof WeakMap !== "undefined" && isWeakMapToString(new WeakMap());
+      isWeakMapToString.working = typeof WeakMap !== "undefined" && isWeakMapToString(/* @__PURE__ */ new WeakMap());
       function isWeakMap(value) {
         if (typeof WeakMap === "undefined") {
           return false;
@@ -1548,7 +1677,7 @@
       function isWeakSetToString(value) {
         return ObjectToString(value) === "[object WeakSet]";
       }
-      isWeakSetToString.working = typeof WeakSet !== "undefined" && isWeakSetToString(new WeakSet());
+      isWeakSetToString.working = typeof WeakSet !== "undefined" && isWeakSetToString(/* @__PURE__ */ new WeakSet());
       function isWeakSet(value) {
         return isWeakSetToString(value);
       }
@@ -1848,7 +1977,7 @@
       function stylizeWithColor(str, styleType) {
         var style = inspect.styles[styleType];
         if (style) {
-          return "[" + inspect.colors[style][0] + "m" + str + "[" + inspect.colors[style][1] + "m";
+          return "\x1B[" + inspect.colors[style][0] + "m" + str + "\x1B[" + inspect.colors[style][1] + "m";
         } else {
           return str;
         }
@@ -2239,8 +2368,8 @@
   // node/internal/assert.js
   var require_assert = __commonJS({
     "node/internal/assert.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var { ERR_INTERNAL_ASSERTION } = require_errors().codes;
       function assert(value, message) {
         if (!value) {
@@ -2258,8 +2387,8 @@
   // node/internal/errors.js
   var require_errors = __commonJS({
     "node/internal/errors.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var {
         ArrayIsArray,
         ArrayPrototypeIncludes,
@@ -2341,8 +2470,7 @@
       }
       function getMessage(key, args, self2) {
         const msg = messages.get(key);
-        if (assert === void 0)
-          assert = require_assert();
+        assert ??= require_assert();
         if (typeof msg === "function") {
           assert(msg.length <= args.length, `Code: ${key}; The provided arguments length (${args.length}) does not match the required ones (${msg.length}).`);
           return ReflectApply(msg, self2, args);
@@ -2376,13 +2504,13 @@ ${suffix}`;
           msg += `"${name}" ${type} `;
         }
         msg += "must be ";
-        const types = [];
+        const types2 = [];
         const instances = [];
         const other = [];
         for (const value of expected) {
           assert(typeof value === "string", "All expected entries have to be of type string");
           if (ArrayPrototypeIncludes(kTypes, value)) {
-            ArrayPrototypePush(types, StringPrototypeToLowerCase(value));
+            ArrayPrototypePush(types2, StringPrototypeToLowerCase(value));
           } else if (RegExpPrototypeTest(classRegExp, value)) {
             ArrayPrototypePush(instances, value);
           } else {
@@ -2391,20 +2519,20 @@ ${suffix}`;
           }
         }
         if (instances.length > 0) {
-          const pos = ArrayPrototypeIndexOf(types, "object");
+          const pos = ArrayPrototypeIndexOf(types2, "object");
           if (pos !== -1) {
-            ArrayPrototypeSplice(types, pos, 1);
+            ArrayPrototypeSplice(types2, pos, 1);
             ArrayPrototypePush(instances, "Object");
           }
         }
-        if (types.length > 0) {
-          if (types.length > 2) {
-            const last = ArrayPrototypePop(types);
-            msg += `one of type ${ArrayPrototypeJoin(types, ", ")}, or ${last}`;
-          } else if (types.length === 2) {
-            msg += `one of type ${types[0]} or ${types[1]}`;
+        if (types2.length > 0) {
+          if (types2.length > 2) {
+            const last = ArrayPrototypePop(types2);
+            msg += `one of type ${ArrayPrototypeJoin(types2, ", ")}, or ${last}`;
+          } else if (types2.length === 2) {
+            msg += `one of type ${types2[0]} or ${types2[1]}`;
           } else {
-            msg += `of type ${types[0]}`;
+            msg += `of type ${types2[0]}`;
           }
           if (instances.length > 0 || other.length > 0)
             msg += " or ";
@@ -2439,7 +2567,7 @@ ${suffix}`;
         } else if (typeof actual === "function" && actual.name) {
           msg += `. Received function ${actual.name}`;
         } else if (typeof actual === "object") {
-          if (actual.constructor && actual.constructor.name) {
+          if (actual.constructor?.name) {
             msg += `. Received an instance of ${actual.constructor.name}`;
           } else {
             const inspected = util.inspect(actual, { depth: -1 });
@@ -2454,14 +2582,18 @@ ${suffix}`;
         return msg;
       }, TypeError2);
       E("ERR_INVALID_URI", "URI malformed", URIError2);
+      E("ERR_INVALID_URL", function(input) {
+        this.input = input;
+        return "Invalid URL";
+      }, TypeError2);
     }
   });
 
   // node/internal/querystring.js
   var require_querystring = __commonJS({
     "node/internal/querystring.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var {
         Array: Array2,
         Int8Array: Int8Array2,
@@ -2790,17 +2922,17 @@ ${suffix}`;
   // node_modules/base64-js/index.js
   var require_base64_js = __commonJS({
     "node_modules/base64-js/index.js"(exports) {
-      init_shims();
       "use strict";
+      init_shims();
       exports.byteLength = byteLength;
       exports.toByteArray = toByteArray;
       exports.fromByteArray = fromByteArray;
-      var lookup2 = [];
+      var lookup = [];
       var revLookup = [];
       var Arr = typeof Uint8Array !== "undefined" ? Uint8Array : Array;
       var code = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
       for (i = 0, len = code.length; i < len; ++i) {
-        lookup2[i] = code[i];
+        lookup[i] = code[i];
         revLookup[code.charCodeAt(i)] = i;
       }
       var i;
@@ -2854,7 +2986,7 @@ ${suffix}`;
         return arr;
       }
       function tripletToBase64(num) {
-        return lookup2[num >> 18 & 63] + lookup2[num >> 12 & 63] + lookup2[num >> 6 & 63] + lookup2[num & 63];
+        return lookup[num >> 18 & 63] + lookup[num >> 12 & 63] + lookup[num >> 6 & 63] + lookup[num & 63];
       }
       function encodeChunk(uint8, start, end) {
         var tmp;
@@ -2876,10 +3008,10 @@ ${suffix}`;
         }
         if (extraBytes === 1) {
           tmp = uint8[len2 - 1];
-          parts.push(lookup2[tmp >> 2] + lookup2[tmp << 4 & 63] + "==");
+          parts.push(lookup[tmp >> 2] + lookup[tmp << 4 & 63] + "==");
         } else if (extraBytes === 2) {
           tmp = (uint8[len2 - 2] << 8) + uint8[len2 - 1];
-          parts.push(lookup2[tmp >> 10] + lookup2[tmp >> 4 & 63] + lookup2[tmp << 2 & 63] + "=");
+          parts.push(lookup[tmp >> 10] + lookup[tmp >> 4 & 63] + lookup[tmp << 2 & 63] + "=");
         }
         return parts.join("");
       }
@@ -2898,10 +3030,10 @@ ${suffix}`;
         var nBits = -7;
         var i = isLE ? nBytes - 1 : 0;
         var d = isLE ? -1 : 1;
-        var s = buffer[offset + i];
+        var s2 = buffer[offset + i];
         i += d;
-        e = s & (1 << -nBits) - 1;
-        s >>= -nBits;
+        e = s2 & (1 << -nBits) - 1;
+        s2 >>= -nBits;
         nBits += eLen;
         for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {
         }
@@ -2913,12 +3045,12 @@ ${suffix}`;
         if (e === 0) {
           e = 1 - eBias;
         } else if (e === eMax) {
-          return m ? NaN : (s ? -1 : 1) * Infinity;
+          return m ? NaN : (s2 ? -1 : 1) * Infinity;
         } else {
           m = m + Math.pow(2, mLen);
           e = e - eBias;
         }
-        return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
+        return (s2 ? -1 : 1) * m * Math.pow(2, e - mLen);
       };
       exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
         var e, m, c;
@@ -2928,7 +3060,7 @@ ${suffix}`;
         var rt = mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0;
         var i = isLE ? 0 : nBytes - 1;
         var d = isLE ? 1 : -1;
-        var s = value < 0 || value === 0 && 1 / value < 0 ? 1 : 0;
+        var s2 = value < 0 || value === 0 && 1 / value < 0 ? 1 : 0;
         value = Math.abs(value);
         if (isNaN(value) || value === Infinity) {
           m = isNaN(value) ? 1 : 0;
@@ -2965,7 +3097,7 @@ ${suffix}`;
         eLen += mLen;
         for (; eLen > 0; buffer[offset + i] = e & 255, i += d, e /= 256, eLen -= 8) {
         }
-        buffer[offset + i - d] |= s * 128;
+        buffer[offset + i - d] |= s2 * 128;
       };
     }
   });
@@ -2973,8 +3105,8 @@ ${suffix}`;
   // node_modules/buffer/index.js
   var require_buffer = __commonJS({
     "node_modules/buffer/index.js"(exports) {
-      init_shims();
       "use strict";
+      init_shims();
       var base64 = require_base64_js();
       var ieee754 = require_ieee754();
       var customInspectSymbol = typeof Symbol === "function" && typeof Symbol["for"] === "function" ? Symbol["for"]("nodejs.util.inspect.custom") : null;
@@ -4590,14 +4722,14 @@ ${suffix}`;
       }
       var hexSliceLookupTable = function() {
         const alphabet = "0123456789abcdef";
-        const table = new Array(256);
+        const table2 = new Array(256);
         for (let i = 0; i < 16; ++i) {
           const i16 = i * 16;
           for (let j = 0; j < 16; ++j) {
-            table[i16 + j] = alphabet[i] + alphabet[j];
+            table2[i16 + j] = alphabet[i] + alphabet[j];
           }
         }
-        return table;
+        return table2;
       }();
       function defineBigIntMethod(fn) {
         return typeof BigInt === "undefined" ? BufferBigIntNotDefined : fn;
@@ -4611,8 +4743,8 @@ ${suffix}`;
   // node/querystring.js
   var require_querystring2 = __commonJS({
     "node/querystring.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var {
         Array: Array2,
         ArrayIsArray,
@@ -4899,31 +5031,31 @@ ${suffix}`;
         -1,
         -1
       ]);
-      function unescapeBuffer(s, decodeSpaces) {
-        const out = Buffer2.allocUnsafe(s.length);
+      function unescapeBuffer(s2, decodeSpaces) {
+        const out = Buffer2.allocUnsafe(s2.length);
         let index = 0;
         let outIndex = 0;
         let currentChar;
         let nextChar;
         let hexHigh;
         let hexLow;
-        const maxLength = s.length - 2;
+        const maxLength = s2.length - 2;
         let hasHex = false;
-        while (index < s.length) {
-          currentChar = StringPrototypeCharCodeAt(s, index);
+        while (index < s2.length) {
+          currentChar = StringPrototypeCharCodeAt(s2, index);
           if (currentChar === 43 && decodeSpaces) {
             out[outIndex++] = 32;
             index++;
             continue;
           }
           if (currentChar === 37 && index < maxLength) {
-            currentChar = StringPrototypeCharCodeAt(s, ++index);
+            currentChar = StringPrototypeCharCodeAt(s2, ++index);
             hexHigh = unhexTable[currentChar];
             if (!(hexHigh >= 0)) {
               out[outIndex++] = 37;
               continue;
             } else {
-              nextChar = StringPrototypeCharCodeAt(s, ++index);
+              nextChar = StringPrototypeCharCodeAt(s2, ++index);
               hexLow = unhexTable[nextChar];
               if (!(hexLow >= 0)) {
                 out[outIndex++] = 37;
@@ -4939,11 +5071,11 @@ ${suffix}`;
         }
         return hasHex ? out.slice(0, outIndex) : out;
       }
-      function qsUnescape(s, decodeSpaces) {
+      function qsUnescape(s2, decodeSpaces) {
         try {
-          return decodeURIComponent2(s);
+          return decodeURIComponent2(s2);
         } catch {
-          return QueryString.unescapeBuffer(s, decodeSpaces).toString();
+          return QueryString.unescapeBuffer(s2, decodeSpaces).toString();
         }
       }
       var noEscape = new Int8Array2([
@@ -5299,11 +5431,11 @@ ${suffix}`;
         addKeyVal(obj, key, value, keyEncoded, valEncoded, decode);
         return obj;
       }
-      function decodeStr(s, decoder) {
+      function decodeStr(s2, decoder) {
         try {
-          return decoder(s);
+          return decoder(s2);
         } catch {
-          return QueryString.unescape(s, true);
+          return QueryString.unescape(s2, true);
         }
       }
     }
@@ -5312,8 +5444,8 @@ ${suffix}`;
   // node/internal/validators.js
   var require_validators = __commonJS({
     "node/internal/validators.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var {
         codes: {
           ERR_INVALID_ARG_TYPE
@@ -5332,8 +5464,8 @@ ${suffix}`;
   // node/internal/util.js
   var require_util2 = __commonJS({
     "node/internal/util.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       function spliceOne(list, index) {
         for (; index + 1 < list.length; index++)
           list[index] = list[index + 1];
@@ -5348,8 +5480,8 @@ ${suffix}`;
   // node/internal/constants.js
   var require_constants = __commonJS({
     "node/internal/constants.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var isWindows = false;
       module.exports = {
         CHAR_UPPERCASE_A: 65,
@@ -5403,8 +5535,8 @@ ${suffix}`;
   // node/url.js
   var require_url = __commonJS({
     "node/url.js"(exports, module) {
-      init_shims();
       "use strict";
+      init_shims();
       var primordials = require_primordials();
       var {
         Int8Array: Int8Array2,
@@ -5418,7 +5550,8 @@ ${suffix}`;
       var { encodeStr, hexTable } = require_querystring();
       var querystring = require_querystring2();
       var {
-        ERR_INVALID_ARG_TYPE
+        ERR_INVALID_ARG_TYPE,
+        ERR_INVALID_URL
       } = require_errors().codes;
       var { validateString } = require_validators();
       var { spliceOne } = require_util2();
@@ -5470,7 +5603,6 @@ ${suffix}`;
         CHAR_TAB,
         CHAR_CARRIAGE_RETURN,
         CHAR_LINE_FEED,
-        CHAR_FORM_FEED,
         CHAR_NO_BREAK_SPACE,
         CHAR_ZERO_WIDTH_NOBREAK_SPACE,
         CHAR_HASH,
@@ -5512,16 +5644,19 @@ ${suffix}`;
       function isIpv6Hostname(hostname) {
         return StringPrototypeCharCodeAt(hostname, 0) === CHAR_LEFT_SQUARE_BRACKET && StringPrototypeCharCodeAt(hostname, hostname.length - 1) === CHAR_RIGHT_SQUARE_BRACKET;
       }
+      var forbiddenHostChars = /[\0\t\n\r #%/:<>?@[\\\]^|]/;
+      var forbiddenHostCharsIpv6 = /[\0\t\n\r #%/<>?@\\^|]/;
       Url.prototype.parse = function parse3(url, parseQueryString, slashesDenoteHost) {
         validateString(url, "url");
         let hasHash = false;
+        let hasAt = false;
         let start = -1;
         let end = -1;
         let rest = "";
         let lastPos = 0;
         for (let i = 0, inWs = false, split = false; i < url.length; ++i) {
           const code = url.charCodeAt(i);
-          const isWs = code === CHAR_SPACE || code === CHAR_TAB || code === CHAR_CARRIAGE_RETURN || code === CHAR_LINE_FEED || code === CHAR_FORM_FEED || code === CHAR_NO_BREAK_SPACE || code === CHAR_ZERO_WIDTH_NOBREAK_SPACE;
+          const isWs = code < 33 || code === CHAR_NO_BREAK_SPACE || code === CHAR_ZERO_WIDTH_NOBREAK_SPACE;
           if (start === -1) {
             if (isWs)
               continue;
@@ -5537,6 +5672,9 @@ ${suffix}`;
           }
           if (!split) {
             switch (code) {
+              case CHAR_AT:
+                hasAt = true;
+                break;
               case CHAR_HASH:
                 hasHash = true;
               case CHAR_QUESTION_MARK:
@@ -5569,7 +5707,7 @@ ${suffix}`;
             rest += url.slice(lastPos, end);
           }
         }
-        if (!slashesDenoteHost && !hasHash) {
+        if (!slashesDenoteHost && !hasHash && !hasAt) {
           const simplePath = simplePathPattern.exec(rest);
           if (simplePath) {
             this.path = rest;
@@ -5670,8 +5808,17 @@ ${suffix}`;
           } else {
             this.hostname = this.hostname.toLowerCase();
           }
-          if (!ipv6Hostname) {
-            this.hostname = toASCII(this.hostname, true);
+          if (this.hostname !== "") {
+            if (ipv6Hostname) {
+              if (forbiddenHostCharsIpv6.test(this.hostname)) {
+                throw new ERR_INVALID_URL(url);
+              }
+            } else {
+              this.hostname = toASCII(this.hostname, true);
+              if (this.hostname === "" || forbiddenHostChars.test(this.hostname)) {
+                throw new ERR_INVALID_URL(url);
+              }
+            }
           }
           const p = this.port ? ":" + this.port : "";
           const h = this.hostname || "";
@@ -5726,8 +5873,8 @@ ${suffix}`;
         }
         if (this.pathname || this.search) {
           const p = this.pathname || "";
-          const s = this.search || "";
-          this.path = p + s;
+          const s2 = this.search || "";
+          this.path = p + s2;
         }
         this.href = this.format();
         return this;
@@ -6039,14 +6186,14 @@ ${suffix}`;
         let protocol = this.protocol || "";
         let pathname = this.pathname || "";
         let hash = this.hash || "";
-        let host2 = "";
+        let host = "";
         let query = "";
         if (this.host) {
-          host2 = auth + this.host;
+          host = auth + this.host;
         } else if (this.hostname) {
-          host2 = auth + (this.hostname.includes(":") && !isIpv6Hostname(this.hostname) ? "[" + this.hostname + "]" : this.hostname);
+          host = auth + (this.hostname.includes(":") && !isIpv6Hostname(this.hostname) ? "[" + this.hostname + "]" : this.hostname);
           if (this.port) {
-            host2 += ":" + this.port;
+            host += ":" + this.port;
           }
         }
         if (this.query !== null && typeof this.query === "object") {
@@ -6080,12 +6227,12 @@ ${suffix}`;
             pathname = newPathname;
         }
         if (this.slashes || slashedProtocol.has(protocol)) {
-          if (this.slashes || host2) {
+          if (this.slashes || host) {
             if (pathname && pathname.charCodeAt(0) !== CHAR_FORWARD_SLASH)
               pathname = "/" + pathname;
-            host2 = "//" + host2;
+            host = "//" + host;
           } else if (protocol.length >= 4 && protocol.charCodeAt(0) === 102 && protocol.charCodeAt(1) === 105 && protocol.charCodeAt(2) === 108 && protocol.charCodeAt(3) === 101) {
-            host2 = "//";
+            host = "//";
           }
         }
         search = search.replace(/#/g, "%23");
@@ -6093,7 +6240,7 @@ ${suffix}`;
           hash = "#" + hash;
         if (search && search.charCodeAt(0) !== CHAR_QUESTION_MARK)
           search = "?" + search;
-        return protocol + host2 + pathname + search + hash;
+        return protocol + host + pathname + search + hash;
       };
       function urlResolve(source, relative) {
         return urlParse(source, false, true).resolve(relative);
@@ -6171,8 +6318,8 @@ ${suffix}`;
           result.port = relative.port;
           if (result.pathname || result.search) {
             const p = result.pathname || "";
-            const s = result.search || "";
-            result.path = p + s;
+            const s2 = result.search || "";
+            result.path = p + s2;
           }
           result.slashes = result.slashes || relative.slashes;
           result.href = result.format();
@@ -6312,17 +6459,17 @@ ${suffix}`;
         return result;
       };
       Url.prototype.parseHost = function parseHost2() {
-        let host2 = this.host;
-        let port2 = portPattern.exec(host2);
-        if (port2) {
-          port2 = port2[0];
-          if (port2 !== ":") {
-            this.port = port2.slice(1);
+        let host = this.host;
+        let port = portPattern.exec(host);
+        if (port) {
+          port = port[0];
+          if (port !== ":") {
+            this.port = port.slice(1);
           }
-          host2 = host2.slice(0, host2.length - port2.length);
+          host = host.slice(0, host.length - port.length);
         }
-        if (host2)
-          this.hostname = host2;
+        if (host)
+          this.hostname = host;
       };
       module.exports = {
         Url,
@@ -6339,7 +6486,13 @@ ${suffix}`;
 
   // node_modules/spec-url/src/index.js
   init_shims();
-  var import_punycode2 = __toModule(require_punycode());
+  var import_punycode2 = __toESM(require_punycode(), 1);
+
+  // node_modules/spec-url/src/auth.js
+  init_shims();
+
+  // node_modules/spec-url/src/host.js
+  init_shims();
 
   // node_modules/spec-url/src/pct.js
   init_shims();
@@ -6377,15 +6530,16 @@ ${suffix}`;
     }
   };
   var pct = {
-    encode(input, encodeSet, { ascii = true, incremental = true } = {}) {
+    encode: (input, encodeSet = 0, { unicode = false, incremental = false } = {}) => {
       let coded = "";
+      if (!incremental)
+        encodeSet |= sets.pct;
       for (let char of input) {
         let cp = char.codePointAt(0);
         if (55296 <= cp && cp <= 56319 || 56320 <= cp && cp <= 57343)
           cp = 65533;
-        const escapeAscii = ascii && (cp < 32 || cp > 126);
-        const escapePct = !incremental && cp === 37;
-        if (escapePct || escapeAscii || lookup(cp) & encodeSet)
+        const escape = cp < 160 ? table[cp] & encodeSet : unicode ? 55296 <= cp && cp <= 57343 || 64976 <= cp && cp <= 65007 || (cp >> 1 & 32767) === 32767 : true;
+        if (escape)
           for (let byte of utf8.encode(cp)) {
             let h1 = byte >> 4, h22 = byte & 15;
             h1 = (h1 < 10 ? 48 : 55) + h1;
@@ -6401,6 +6555,9 @@ ${suffix}`;
       return input.replace(_pcts, _decode);
     }
   };
+  function PercentEncoder(options = {}) {
+    this.encode = (input, encodeSet) => pct.encode(input, encodeSet, options);
+  }
   var _pcts = /(%[0-9A-Fa-f]{2})+/g;
   var _decode = (input) => {
     const bytes = [];
@@ -6408,92 +6565,275 @@ ${suffix}`;
       bytes[bytes.length] = parseInt(input.substr(i + 1, 2), 16);
     return String.fromCodePoint(...utf8.decode(bytes));
   };
-  var lookup;
-  var isInSet;
-  var getProfile;
-  {
-    const url = 1 << 9, user2 = 1 << 8, host2 = 1 << 7, dir = 1 << 6, dir_s = 1 << 5, dir_ms = 1 << 4, dir_m = 1 << 3, query = 1 << 2, query_s = 1 << 1, hash = 1 << 0;
-    const u20_u27 = [
-      999,
-      0,
-      871,
-      1022,
-      0,
-      512,
-      0,
-      2
-    ];
-    const u2f = [
-      504
-    ];
-    const u3A_u40 = [
-      384,
-      256,
-      999,
-      256,
-      999,
-      504,
-      384
-    ];
-    const u5B_u60 = [
-      896,
-      944,
-      896,
-      896,
-      0,
-      865
-    ];
-    const u7B_u7E = [
-      864,
-      768,
-      864,
-      0
-    ];
-    lookup = (c) => c <= 31 || 127 <= c && c < 160 ? ~0 : 32 <= c && c <= 39 ? u20_u27[c - 32] : c === 47 ? u2f[c - 47] : 58 <= c && c <= 64 ? u3A_u40[c - 58] : 91 <= c && c <= 96 ? u5B_u60[c - 91] : 123 <= c && c <= 126 ? u7B_u7E[c - 123] : 55296 <= c && c <= 57343 ? ~0 : 64976 <= c && c <= 65007 || (c >> 1 & 32767) === 32767 ? ~0 : 0;
-    const [username, pass2, password, file] = [user2, user2, user2, dir];
-    const _generic = { url, user: user2, pass: pass2, username, password, host: host2, dir, file, query, hash }, _minimal = { ..._generic, dir: dir_m, file: dir_m }, _special = { ..._generic, dir: dir_s, file: dir_s, query: query_s }, _minspec = { ..._generic, dir: dir_ms, file: dir_ms, query: query_s };
-    getProfile = ({ minimal = false, special = false }) => minimal && special ? _minspec : special ? _special : minimal ? _minimal : _generic;
-  }
-  isInSet = (cp, { name, minimal, special }) => lookup(cp) & getProfile({ minimal, special })[name];
+  var sets = {
+    c0c1: 1,
+    nl_tab: 2,
+    special: 4,
+    quot: 8,
+    pct: 16,
+    user: 32,
+    pass: 64,
+    host: 128,
+    seg: 256,
+    query: 512,
+    hash: 0,
+    valid_userinfo: 1024,
+    valid_other: 2048,
+    norm_userinfo: 4096,
+    norm_seg: 8192,
+    norm_query: 16384,
+    norm_hash: 32768
+  };
+  var table = [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    1,
+    1,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    64640,
+    0,
+    64512,
+    32736,
+    3072,
+    16,
+    0,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    13792,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5280,
+    4096,
+    64640,
+    4096,
+    64640,
+    13792,
+    5248,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    7296,
+    7300,
+    7296,
+    7296,
+    0,
+    48128,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    15360,
+    7296,
+    15360,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ];
+  var { c0c1, nl_tab, special: s, quot: q } = sets;
+  var minimal = {
+    user: nl_tab | sets.user,
+    pass: nl_tab | sets.pass,
+    host: nl_tab | sets.host,
+    dir: nl_tab | sets.seg,
+    file: nl_tab | sets.seg,
+    query: nl_tab | sets.query,
+    hash: nl_tab | sets.hash
+  };
+  var minimal_special = {
+    user: nl_tab | sets.user | s,
+    pass: nl_tab | sets.pass | s,
+    host: nl_tab | sets.host | s,
+    dir: nl_tab | sets.seg | s,
+    file: nl_tab | sets.seg | s,
+    query: nl_tab | sets.query | q,
+    hash: nl_tab | sets.hash
+  };
+  var normal = {
+    user: c0c1 | sets.user | sets.norm_userinfo,
+    pass: c0c1 | sets.pass | sets.norm_userinfo,
+    host: c0c1 | sets.host,
+    dir: c0c1 | sets.seg | sets.norm_seg,
+    file: c0c1 | sets.seg | sets.norm_seg,
+    query: c0c1 | sets.query | sets.norm_query,
+    hash: c0c1 | sets.hash | sets.norm_hash
+  };
+  var normal_special = {
+    user: normal.user | s,
+    pass: normal.pass | s,
+    host: normal.host | s,
+    dir: normal.dir | s,
+    file: normal.file | s,
+    query: normal.query | q,
+    hash: normal.hash
+  };
+  var valid = {
+    user: c0c1 | sets.user | sets.valid_userinfo,
+    pass: c0c1 | sets.pass | sets.valid_userinfo,
+    host: c0c1 | sets.host | sets.valid_other,
+    dir: c0c1 | sets.seg | sets.valid_other,
+    file: c0c1 | sets.seg | sets.valid_other,
+    query: c0c1 | sets.query | sets.valid_other,
+    hash: c0c1 | sets.hash | sets.valid_other
+  };
+  var profiles = {
+    default: valid,
+    WHATWG: normal,
+    minimal
+  };
+  var specialProfiles = {
+    default: valid,
+    WHATWG: normal_special,
+    minimal: minimal_special
+  };
 
   // node_modules/spec-url/src/host.js
-  init_shims();
-  var import_punycode = __toModule(require_punycode());
+  var import_punycode = __toESM(require_punycode(), 1);
   var log = console.log.bind(console);
-  var _nonhost = /[\x00\x09\x0A\x0D\x20#%/:<>?@[\\\]^|]/g;
-  function parseHost(input, mode, percentCoded = true) {
-    if (input) {
-      if (input[0] === "[") {
-        input = input.substr(1, input.length - 2);
-        input = `[${ipv6.normalise(input)}]`;
-      } else if (mode & 3) {
-        let r = percentCoded ? pct.decode(input) : input;
-        r = nameprep(r);
-        r = import_punycode.default.toUnicode(r);
-        const address = ipv4.parse(r);
-        if (address != null)
-          return ipv4.print(address);
-        if (!r.length || (_nonhost.lastIndex = 0, _nonhost.test(r)))
-          throw new Error(`Host parser: Invalid domain: ${JSON.stringify(r)}`);
-        return r;
-      }
-    }
-    return input;
+  var types = { opaque: 1, domain: 2, ipv4: 4, ipv6: 6 };
+  var hostType = (host) => host == null ? null : typeof host === "string" ? types.opaque : typeof host === "number" ? types.ipv4 : typeof host[0] === "number" ? types.ipv6 : typeof host[0] === "string" ? types.domain : null;
+  var parseHost = (input, percentCoded = true) => input === "" || typeof input !== "string" ? input : parseDomain(input, percentCoded);
+  var parseWebHost = (input, percentCoded = true) => typeof input !== "string" ? input : parseDomain(input, percentCoded);
+  var validateOpaqueHost = (input, percentCoded = true) => {
+    if (_opaqueHostCodes.test(input))
+      return input;
+    else
+      throw new Error(`Invalid opaque-host-string "${input}"`);
+  };
+  function parseDomain(input, percentCoded = true) {
+    let r = percentCoded ? pct.decode(input) : input;
+    r = import_punycode.default.toUnicode(nameprep(r));
+    const address = ipv4.parse(r);
+    if (address != null)
+      return address;
+    if (r === "")
+      throw new Error("Invalid domain-string");
+    if (_endsInNumber.test(r))
+      throw new Error("Invalid doimain-string");
+    if (_isDomainString.test(r))
+      return r.split(".");
+    throw new Error(`Invalid domain-string "${input}"`);
   }
-  var tableB1 = /[\u00AD\u034F\u1806\uFEFF\u2060\u180B-\u180D\u200B-\u200D\uFE00-\uFE0F]/g;
-  var tableC6 = /[\uFFF9-\uFFFD]/g;
-  function nameprep(input) {
-    tableC6.lastIndex = tableB1.lastIndex = 0;
-    input = input.replace(tableB1, "").normalize("NFKC").toLowerCase();
-    for (let c of input) {
-      c = c.codePointAt(0);
-      const nonchar = 64976 <= c && c <= 65007 || c <= 1114111 && (c >> 1 & 32767) === 32767;
-      if (nonchar)
-        throw new Error("Nameprep: Invalid code point");
-    }
-    if (tableC6.test(input))
-      throw new Error("Nameprep: Invalid code point");
-    return input;
+  function printHost(host) {
+    const typ = hostType(host);
+    const r = typ === types.ipv4 ? ipv4.print(host) : typ === types.ipv6 ? `[${ipv6.print(host)}]` : typ === types.domain ? host.join(".") : host;
+    return r;
   }
   var _ip4num = /(?:0[xX]([0-9A-Fa-f]*)|(0[0-7]*)|([1-9][0-9]*))([.]?)/y;
   var ipv4 = {
@@ -6508,7 +6848,7 @@ ${suffix}`;
           const rest = 5 - count;
           if (err || num >= 256 ** rest)
             throw new RangeError(`Invalid IPv4 address: <${input}>`);
-          return (addr << 8 * rest) + num;
+          return (addr << 8 * rest) + num >>> 0;
         } else {
           if (count === 4 || !match[4])
             return null;
@@ -6592,15 +6932,103 @@ ${suffix}`;
       return ipv6.print(ipv6.parse(input));
     }
   };
+  var _isASCIIString = /^[\0-\x7E]*$/;
+  var _opaqueHostCodes = /^[^\x00\x09\x0A\x0D\x20#/:<>?@[\\\]^|]*$/;
+  var _isDomainString = /^[^\x00-\x20\x7F#%/:<>?@[\\\]^|]*$/;
+  var _endsInNumber = /(^|[.])([0-9]+|0[xX][0-9A-Fa-f]*)[.]?$/;
+  var punyEncode = (domain) => domain.map((label) => _isASCIIString.test(label) ? label : "xn--" + import_punycode.default.encode(label));
+  var tableB1 = /[\u00AD\u034F\u1806\uFEFF\u2060\u180B-\u180D\u200B-\u200D\uFE00-\uFE0F]/g;
+  var tableC6 = /[\uFFF9-\uFFFD]/g;
+  function nameprep(input) {
+    tableC6.lastIndex = tableB1.lastIndex = 0;
+    input = input.replace(tableB1, "").normalize("NFKC").toLowerCase();
+    for (let c of input) {
+      c = c.codePointAt(0);
+      const nonchar = 64976 <= c && c <= 65007 || c <= 1114111 && (c >> 1 & 32767) === 32767;
+      if (nonchar)
+        throw new Error("Nameprep: Invalid code point");
+    }
+    if (tableC6.test(input))
+      throw new Error("Nameprep: Invalid code point");
+    return input;
+  }
+
+  // node_modules/spec-url/src/auth.js
+  var log2 = console.log.bind(console);
+  function parseAuth(input) {
+    const auth = {};
+    const len = input.length;
+    const str = input.substring.bind(input);
+    let bracks = false;
+    let c = -1, w = -1, p = len;
+    for (let i = 0; i < len; i++) {
+      const ch = input[i];
+      if (ch === "[")
+        bracks = true;
+      else if (ch === "]")
+        bracks = false;
+      else if (ch === "@") {
+        c = i;
+        p = len;
+        bracks = false;
+      } else if (ch === ":") {
+        if (w < 0)
+          w = i;
+        if (!bracks && p >= c)
+          p = i;
+      }
+    }
+    if (c >= 0) {
+      if (0 <= w && w < c) {
+        auth.user = str(0, w);
+        auth.pass = str(w + 1, c);
+      } else
+        auth.user = str(0, c);
+    }
+    auth.host = input[c + 1] === "[" ? ipv6.parse(str(c + 2, p - 1)) : str(c + 1, p);
+    if (p < len)
+      auth.port = parsePort(str(p + 1));
+    return auth;
+  }
+  var parsePort = (input) => {
+    if (input === "")
+      return input;
+    if (/^[0-9]+$/.test(input)) {
+      const port = +input;
+      if (input < 2 ** 16)
+        return port;
+    }
+    throw new Error(`Invalid port-string: "${input}"`);
+  };
 
   // node_modules/spec-url/src/index.js
   var { setPrototypeOf: setProto, assign } = Object;
+  var log3 = console.log.bind(console);
   var ords = { scheme: 1, auth: 2, drive: 3, root: 4, dir: 5, file: 6, query: 7, hash: 8 };
-  var modes = { generic: 0, web: 1, file: 2, special: 3 };
-  var specials = { http: 1, https: 1, ws: 1, wss: 1, ftp: 1, file: 2 };
-  var modeFor = ({ scheme }, fallback = modes.generic) => specials[low(scheme)] || fallback;
+  var modes = { generic: 1, noscheme: 2, web: 4, file: 8, special: 14 };
+  var specials = { http: 4, https: 4, ws: 4, wss: 4, ftp: 4, file: 8 };
+  var modeFor = (url, fallback = modes.noscheme) => url.scheme ? specials[low(url.scheme)] || modes.generic : url.drive ? modes.file : fallback;
   var isFragment = (url) => url.hash != null && ord(url) === ords.hash;
   var low = (str) => str ? str.toLowerCase() : str;
+  var authErrors = (auth, mode = modes.generic) => {
+    const errs = [];
+    const hasNoHost = auth.host == null || auth.host === "";
+    if (auth.port != null) {
+      if (mode & modes.file)
+        errs.push(`A file-URL cannot have a port`);
+      else if (hasNoHost)
+        errs.push(`A URL without a host cannot have a port`);
+    }
+    if (auth.user != null || auth.pass != null) {
+      if (mode & modes.file)
+        errs.push(`A file-URL cannot have credentials`);
+      else if (hasNoHost)
+        errs.push(`A URL without a host cannot have credentials`);
+    }
+    if (auth.pass != null && auth.user == null)
+      errs.push(`A URL without a username cannot have a password`);
+    return errs.length ? errs : null;
+  };
   var tags = {
     scheme: 1,
     user: 2,
@@ -6631,65 +7059,69 @@ ${suffix}`;
         r[k] = url[k].slice(0);
     return r;
   };
-  var goto = (url1, url2) => {
-    const r = upto(url1, ord(url2));
+  var _rebase = (url, base) => {
+    const r = upto(base, ord(url));
     for (const k in tags)
-      if (url2[k] == null)
+      if (url[k] == null)
         continue;
       else if (k === "dirs")
-        r.dirs = [...r.dirs || [], ...url2.dirs];
+        r.dirs = (r.dirs || []).concat(url.dirs);
       else
-        r[k] = url2[k];
+        r[k] = url[k];
     if ((r.host != null || r.drive) && (r.dirs || r.file))
       r.root = "/";
     return r;
   };
-  var isBase = ({ scheme, host: host2, drive, root }) => {
-    const mode = specials[low(scheme)] || modes.generic;
-    return scheme && (mode & modes.file ? host2 != null && (drive || root) : mode & modes.web ? host2 && root : host2 != null || root);
+  var RebaseError = class extends TypeError {
+    constructor(url12, url22) {
+      super(`Cannot rebase <${print(url12)}> onto <${print(url22)}>`);
+    }
+  };
+  var rebase = (url, base) => {
+    if (url.scheme && modeFor(url) & modes.special && low(url.scheme) === low(base.scheme))
+      url = setProto({ scheme: null }, url);
+    if (url.scheme || isFragment(url) || !hasOpaquePath(base))
+      return _rebase(url, base);
+    else
+      throw new RebaseError(url, base);
   };
   var ForceError = class extends TypeError {
     constructor(url) {
-      super(`Cannot coerce ${print(url)} to a base-URL`);
+      super(`Cannot coerce <${print(url)}> to a base-URL`);
+      this.url = url;
     }
   };
   var forceAsFileUrl = (url) => {
-    url = assign({}, url);
-    if (url.host == null)
-      url.host = "";
-    if (url.drive == null)
-      url.root = "/";
-    return url;
+    try {
+      const { user, pass, port } = url;
+      if (user != null || pass != null || port != null)
+        throw url;
+      const r = assign({}, url);
+      r.host = url.host == null ? "" : parseHost(url.host);
+      if (r.drive == null)
+        r.root = "/";
+      return r;
+    } catch (e) {
+      throw new ForceError(url);
+    }
   };
   var forceAsWebUrl = (url) => {
-    url = assign({}, url);
-    if (!url.host) {
-      let str = url.host;
-      const dirs = url.dirs ? url.dirs.slice() : [];
-      while (!str && dirs.length)
-        str = dirs.shift();
-      if (!str) {
-        str = url.file;
-        delete url.file;
+    try {
+      const r = assign({}, url);
+      if (url.host == null || url.host === "") {
+        const match = _firstNonEmptySegment(url);
+        assign(r, parseAuth(match.value));
+        _removeSegments(r, match);
       }
-      if (str) {
-        try {
-          assign(url, parseAuth(str, modes.web));
-        } catch (e) {
-          throw new ForceError(url);
-        }
-        if (dirs.length)
-          url.dirs = dirs;
-        else
-          delete url.dirs;
-      } else
-        throw new ForceError(url);
+      r.host = parseWebHost(r.host);
+      r.root = "/";
+      return r;
+    } catch (e) {
+      throw new ForceError(url);
     }
-    url.root = "/";
-    return url;
   };
   var force = (url) => {
-    const mode = specials[low(url.scheme)] || modes.generic;
+    const mode = modeFor(url);
     if (mode === modes.file)
       return forceAsFileUrl(url);
     else if (mode === modes.web)
@@ -6699,33 +7131,29 @@ ${suffix}`;
     else
       throw new ForceError(url);
   };
-  var ResolveError = class extends TypeError {
-    constructor(url1, url2) {
-      super(`Cannot resolve <${print(url1)}> against <${print(url2)}>`);
-    }
+  var _firstNonEmptySegment = (url) => {
+    const dirs = url.dirs || [];
+    for (let i = 0, l = dirs.length; i < l; i++)
+      if (dirs[i])
+        return { value: dirs[i], ord: ords.dir, index: i };
+    if (url.file)
+      return { value: url.file, ord: ords.file };
+    throw null;
   };
-  var genericResolve = (url1, url2) => {
-    if (url1.scheme || url2.scheme)
-      return goto(url2, url1);
-    else
-      throw new ResolveError(url1, url2);
+  var _removeSegments = (url, match) => {
+    if (match.ord === ords.dir) {
+      const dirs_ = url.dirs.slice(match.index + 1);
+      if (dirs_.length)
+        url.dirs = dirs_;
+      else
+        delete url.dirs;
+    } else if (match.ord === ords.file)
+      delete url.file;
+    return url;
   };
-  var legacyResolve = (url1, url2) => {
-    if (url1.scheme && low(url1.scheme) === low(url2.scheme))
-      url2 = setProto({ scheme: url1.scheme }, url2), url1 = setProto({ scheme: null }, url1);
-    return genericResolve(url1, url2);
-  };
-  var WHATWGResolve = (url1, url2) => {
-    const mode = url1.scheme ? modeFor(url1) : modeFor(url2);
-    if (mode & modes.special)
-      return force(legacyResolve(url1, url2));
-    if (isBase(url2))
-      return genericResolve(url1, url2);
-    if (url2.scheme && (url1.scheme || isFragment(url1)))
-      return goto(url2, url1);
-    else
-      throw new ResolveError(url1, url2);
-  };
+  var hasOpaquePath = (url) => url.root == null && url.host == null && modeFor(url) === modes.generic;
+  var WHATWGResolve = (url, base) => base == null ? force(url) : force(rebase(url, base));
+  var defaultPorts = { http: 80, ws: 80, https: 443, wss: 443, ftp: 21 };
   var normalise = (url, coded = true) => {
     const r = assign({}, url);
     const scheme = low(r.scheme);
@@ -6736,38 +7164,33 @@ ${suffix}`;
       delete r.user;
     if (r.port === "")
       delete r.port;
-    if (!isBase(url) && url.dirs)
+    if (r.drive)
+      r.drive = r.drive[0] + ":";
+    if (hasOpaquePath(url) && url.dirs)
       r.dirs = r.dirs.slice();
     else {
       const dirs = [];
       for (const x of r.dirs || []) {
         const isDots = dots(x, coded);
-        if (isDots === 2)
-          dirs.pop();
-        else if (!isDots)
+        if (isDots === 0)
           dirs.push(x);
-      }
-      if (r.file) {
-        const isDots = dots(r.file, coded);
-        if (isDots === 2)
-          dirs.pop();
-        if (isDots)
-          delete r.file;
+        else if (isDots === 2) {
+          if (dirs.length && dirs[dirs.length - 1] !== "..")
+            dirs.pop();
+          else if (!url.root)
+            dirs.push("..");
+        }
       }
       if (dirs.length)
         r.dirs = dirs;
+      else if (ord(url) === ords.dir)
+        r.dirs = ["."];
       else
         delete r.dirs;
     }
-    if (r.drive)
-      r.drive = r.drive[0] + ":";
-    if (scheme === "file" && r.host === "localhost")
+    if (scheme === "file" && isLocalHost(r.host))
       r.host = "";
-    else if (url.port === 80 && (scheme === "http" || scheme === "ws"))
-      delete r.port;
-    else if (url.port === 443 && (scheme === "https" || scheme === "wss"))
-      delete r.port;
-    else if (url.port === 21 && scheme === "ftp")
+    else if (url.port === defaultPorts[scheme])
       delete r.port;
     for (const k in tags)
       if (r[k] == null)
@@ -6775,48 +7198,61 @@ ${suffix}`;
     return r;
   };
   var dots = (seg, coded = true) => seg.length <= 3 && (seg === "." || coded && low(seg) === "%2e") ? 1 : seg.length <= 6 && (seg === ".." || coded && low(seg) === ".%2e" || coded && low(seg) === "%2e." || coded && low(seg) === "%2e%2e") ? 2 : 0;
-  var percentEncode = (url, options = { ascii: true }) => {
-    const r = {}, profile = profileFor(url);
-    for (const k in tags)
-      if (url[k] != null) {
-        const v = url[k];
-        if (k === "dirs") {
-          const _dirs = r.dirs = [];
-          for (const x of v)
-            _dirs.push(pct.encode(x, profile.dir, options));
-        } else if (k === "host") {
-          if (_isIp6(v))
-            r[k] = v;
-          else if (modeFor(url) & modes.special)
-            r[k] = options.ascii ? import_punycode2.default.toASCII(v) : v;
-          else
-            r[k] = pct.encode(v, profile[k], options);
-        } else
-          r[k] = k in profile ? pct.encode(v, profile[k], options) : v;
-      }
+  var isLocalHost = (host) => host === "localhost" || hostType(host) === types.domain && host.length === 1 && host[0] === "localhost";
+  var percentEncode = (url, spec = "WHATWG") => {
+    const r = {};
+    const mode = modeFor(url);
+    const unicode = spec in { minimal: 1, URL: 1, IRI: 1 };
+    const encode = new PercentEncoder({ unicode, incremental: true }).encode;
+    const profile = mode & modes.special ? specialProfiles[spec] || specialProfiles.default : profiles[spec] || profiles.default;
+    if (url.scheme != null)
+      r.scheme = url.scheme;
+    if (url.user != null)
+      r.user = encode(url.user, profile.user);
+    if (url.pass != null)
+      r.pass = encode(url.pass, profile.pass);
+    if (url.host != null) {
+      const t = hostType(url.host);
+      r.host = t === types.ipv6 ? [...url.host] : t === types.ipv4 ? url.host : t === types.domain ? unicode ? [...url.host] : punyEncode(url.host) : t === types.opaque ? encode(url.host, profile.host) : url.host;
+    }
+    if (url.port != null)
+      r.port = url.port;
+    if (url.drive != null)
+      r.drive = url.drive;
+    if (url.root)
+      r.root = "/";
+    const seg_esc = hasOpaquePath(url) ? profiles.minimal.dir | sets.c0c1 : profile.dir;
+    if (url.dirs)
+      r.dirs = url.dirs.map((x) => encode(x, seg_esc));
+    if (url.file != null)
+      r.file = encode(url.file, seg_esc);
+    if (url.query != null)
+      r.query = encode(url.query, profile.query);
+    if (url.hash != null)
+      r.hash = encode(url.hash, profile.hash);
     return r;
   };
-  var _decode2 = getProfile({});
-  var _isIp6 = (str) => str != null && str[0] === "[" && str[str.length - 1] === "]";
-  var profileFor = (url, fallback) => {
-    const special = modeFor(url, fallback) & modes.special;
-    const minimal = special ? false : !isBase(url);
-    return getProfile({ minimal, special });
-  };
-  var print = (url) => {
-    const driveNorAuth = !url.drive && url.host == null;
+  var isSchemeLike = /^([a-zA-Z][a-zA-Z+\-.]*):(.*)$/;
+  var print = (url, spec = "minimal") => {
+    url = percentEncode(url, spec);
+    const authNorDrive = url.host == null && url.drive == null;
     const emptyFirstDir = url.dirs && url.dirs[0] === "";
-    if (driveNorAuth && url.root && emptyFirstDir || !url.root && emptyFirstDir)
-      url = setProto({ dirs: ["."].concat(url.dirs) }, url);
-    return _print(url);
+    if (authNorDrive && emptyFirstDir)
+      url.dirs.unshift(".");
+    let match;
+    if (ord(url) === ords.dir && (match = isSchemeLike.exec(url.dirs[0])))
+      url.dirs[0] = match[1] + "%3A" + match[2];
+    if (ord(url) === ords.file && (match = isSchemeLike.exec(url.file)))
+      url.file = match[1] + "%3A" + match[2];
+    return unsafePrint(url);
   };
-  var _print = (url) => {
+  var unsafePrint = (url) => {
     let result = "";
-    const hasCreds = url.user != null;
+    const hasCredentials = url.user != null;
     for (const k in tags)
       if (url[k] != null) {
         const v = url[k];
-        result += k === "scheme" ? v + ":" : k === "user" ? "//" + v : k === "pass" ? ":" + v : k === "host" ? (hasCreds ? "@" : "//") + v : k === "port" ? ":" + v : k === "drive" ? "/" + v : k === "root" ? "/" : k === "dirs" ? v.join("/") + "/" : k === "file" ? v : k === "query" ? "?" + v : k === "hash" ? "#" + v : "";
+        result += k === "scheme" ? v + ":" : k === "user" ? "//" + v : k === "pass" ? ":" + v : k === "host" ? (hasCredentials ? "@" : "//") + printHost(v) : k === "port" ? ":" + v : k === "drive" ? "/" + v : k === "root" ? "/" : k === "dirs" ? v.join("/") + "/" : k === "file" ? v : k === "query" ? "?" + v : k === "hash" ? "#" + v : "";
       }
     return result;
   };
@@ -6827,7 +7263,7 @@ ${suffix}`;
   var [START, SCHEME, SS, AUTH, PATH, QUERY, FRAG] = flags();
   var [CR, LF, TAB, SP, QUE, HASH, COL, PLUS, MIN, DOT, SL, SL2, BAR] = [..."\r\n	 ?#:+-./\\|"].map((_) => _.charCodeAt(0));
   var isAlpha = (c) => 65 <= c && c <= 90 || 97 <= c && c <= 122;
-  function parse(input, mode = modes.web) {
+  function parse(input, mode = modes.noscheme) {
     const url = {};
     let state = START | SCHEME;
     let slashes = 0, letter = false, isDrive = false;
@@ -6859,9 +7295,15 @@ ${suffix}`;
           if (isSlash)
             url.root = "/";
         } else if (state & AUTH) {
-          assign(url, parseAuth(buffer, mode, true));
+          assign(url, parseAuth(buffer));
+          url.host = mode & (modes.web | modes.file) ? parseHost(url.host) : validateOpaqueHost(url.host);
           if (isSlash)
             url.root = "/";
+          const errs = authErrors(url, mode);
+          if (errs) {
+            const message = "\n	- " + errs.join("\n	- ") + "\n";
+            throw new Error(`Invalid URL-string <${input}> ${message}`);
+          }
         } else if (state === QUERY)
           url.query = buffer;
         else if (state === FRAG)
@@ -6893,47 +7335,22 @@ ${suffix}`;
       if (c > SP)
         end = buffer.length;
     }
+    const fileDots = url.file && dots(url.file);
+    if (!hasOpaquePath(url) && fileDots) {
+      if (url.dirs)
+        url.dirs.push(url.file);
+      else
+        url.dirs = [url.file];
+      delete url.file;
+    }
     return url;
   }
-  var raw = String.raw;
-  var opt = (_) => "(?:" + _ + ")?";
-  var Rexp = (_) => new RegExp("^" + _ + "$");
-  var port = "[:]([0-9]*)";
-  var user = "([^:]*)";
-  var pass = "[:](.*)";
-  var host = raw`(\[[^\]]*\]|[^\0\t\n\r #/:<>?@[\\\]^|]*)`;
-  var creds = user + opt(pass) + "[@]";
-  var authExp = Rexp(opt(creds) + host + opt(port));
-  function parseAuth(input, mode, percentCoded = true) {
-    let match, user2, pass2, host2, port2, _;
-    if (input.length === 0)
-      host2 = "";
-    else if (match = authExp.exec(input)) {
-      [_, user2, pass2, host2, port2] = match;
-      if (port2 != null && port2.length) {
-        port2 = +port2;
-        if (port2 >= 2 ** 16)
-          throw new Error("ERR_INVALID_PORT");
-      }
-    } else
-      throw new Error("ERR_INVALID_AUTH");
-    if ((user2 != null || port2 != null) && !host2)
-      throw new Error();
-    if (mode === modes.file && (user2 != null || port2 != null))
-      throw new Error();
-    host2 = parseHost(host2, mode, percentCoded);
-    const auth = { user: user2, pass: pass2, host: host2, port: port2 };
-    for (const k in auth)
-      if (auth[k] == null)
-        delete auth[k];
-    return auth;
-  }
-  var version = "2.0.0-dev.1";
+  var version = "2.3.3-dev";
 
   // worker-src.js
-  var import_url = __toModule(require_url());
+  var import_url = __toESM(require_url());
   importScripts("../common/worker_common.js");
-  var nodeURLVersion = "17.0.1";
+  var nodeURLVersion = "18.1.0";
   var browserVersion = (() => {
     const ua = navigator.userAgent;
     let match = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
@@ -6989,7 +7406,7 @@ ${suffix}`;
       protocol: url.scheme === void 0 ? "" : url.scheme + ":",
       username: url.user || "",
       password: url.pass || "",
-      hostname: url.host || "",
+      hostname: url.host ? url.host.join(".") : "",
       port: url.port === void 0 ? "" : String(url.port),
       pathname: `${url.drive ? "/" + url.drive : ""}${url.root || ""}${url.dirs ? url.dirs.join("/") + "/" : ""}${url.file || ""}`,
       search: url.query ? "?" + url.query : "",
