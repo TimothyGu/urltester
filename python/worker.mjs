@@ -1,9 +1,5 @@
-importScripts("../common/worker_common.js");
-
-const PYODIDE_VERSION = "v0.20.0"
-const PYODIDE_ROOT = `https://cdn.jsdelivr.net/pyodide/${PYODIDE_VERSION}/full`;
-
-importScripts(`${PYODIDE_ROOT}/pyodide.js`);
+import "../common/worker_common.js";
+import { loadPyodide, version as PYODIDE_VERSION } from "https://cdn.jsdelivr.net/pyodide/v0.22.0/full/pyodide.mjs";
 
 let pyParse;
 let requestsParse;
@@ -11,7 +7,7 @@ let pyVersion;
 let requestsVersion;
 
 async function init() {
-  const pyodide = await loadPyodide({ indexURL: PYODIDE_ROOT, fullStdLib: false });
+  const pyodide = await loadPyodide();
   await pyodide.loadPackage("micropip");
   await pyodide.runPythonAsync(`
     import micropip
