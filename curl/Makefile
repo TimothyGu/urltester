@@ -1,8 +1,8 @@
 EMSCRIPTEN_DOCKER := docker run --rm -v $$(pwd):/src -u $$(id -u):$$(id -g) emscripten/emsdk
 EMSCRIPTEN_EXEC ?= $(EMSCRIPTEN_DOCKER)
 
-CURL_VERSION := 7.79.1
-CURL_SHA256 := de62c4ab9a9316393962e8b94777a570bb9f71feb580fb4475e412f2f9387851
+CURL_VERSION := 7.87.0
+CURL_SHA256 := 5d6e128761b7110946d1276aff6f0f266f2b726f5e619f7e0a057a474155f307
 CURL_URL := https://github.com/curl/curl/releases/download/curl-$(subst .,_,$(CURL_VERSION))/curl-$(CURL_VERSION).tar.bz2
 
 .PHONY: all

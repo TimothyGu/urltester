@@ -63,7 +63,7 @@ static void print(const char *str) {
 }
 
 static void get_and_print(CURLU *h, CURLUPart part, CURLUcode no_part,
-                          const char *description) {
+                          const char *description, bool ok_if_fail) {
   char *str = NULL;
   char *decoded_str = NULL;
 
@@ -76,7 +76,9 @@ static void get_and_print(CURLU *h, CURLUPart part, CURLUcode no_part,
   if (rc == no_part) {
     str = NULL;
   } else if (rc) {
-    fprintf(stderr, "Failed to get %s: %s\n", description, url_strerr(rc));
+    if (!ok_if_fail) {
+      fprintf(stderr, "Failed to get %s: %s\n", description, url_strerr(rc));
+    }
     goto end;
   }
 
@@ -108,7 +110,7 @@ end:
 
 static void get_and_print_json(struct json_object *obj, CURLU *h,
                                CURLUPart part, CURLUcode no_part,
-                               const char *description) {
+                               const char *description, bool ok_if_fail) {
   char *str = NULL;
   char *decoded_str = NULL;
   char *decoded_key = NULL;
@@ -122,7 +124,9 @@ static void get_and_print_json(struct json_object *obj, CURLU *h,
   if (rc == no_part) {
     str = NULL;
   } else if (rc) {
-    fprintf(stderr, "Failed to get %s: %s\n", description, url_strerr(rc));
+    if (!ok_if_fail) {
+      fprintf(stderr, "Failed to get %s: %s\n", description, url_strerr(rc));
+    }
     goto end;
   }
 
@@ -158,19 +162,21 @@ end:
 static void print_json(CURLU *h) {
   struct json_object obj = new_json_object();
 
-  get_and_print_json(&obj, h, CURLUPART_URL, -1, "href");
-  get_and_print_json(&obj, h, CURLUPART_SCHEME, CURLUE_NO_SCHEME, "scheme");
-  get_and_print_json(&obj, h, CURLUPART_USER, CURLUE_NO_USER, "user");
+  get_and_print_json(&obj, h, CURLUPART_URL, -1, "href", false);
+  get_and_print_json(&obj, h, CURLUPART_SCHEME, CURLUE_NO_SCHEME, "scheme",
+                     false);
+  get_and_print_json(&obj, h, CURLUPART_USER, CURLUE_NO_USER, "user", false);
   get_and_print_json(&obj, h, CURLUPART_PASSWORD, CURLUE_NO_PASSWORD,
-                     "password");
-  get_and_print_json(&obj, h, CURLUPART_OPTIONS, CURLUE_NO_OPTIONS, "options");
-  get_and_print_json(&obj, h, CURLUPART_HOST, CURLUE_NO_HOST, "host");
-  get_and_print_json(&obj, h, CURLUPART_PORT, CURLUE_NO_PORT, "port");
-  get_and_print_json(&obj, h, CURLUPART_PATH, -1, "path");
-  get_and_print_json(&obj, h, CURLUPART_QUERY, CURLUE_NO_QUERY, "query");
+                     "password", false);
+  get_and_print_json(&obj, h, CURLUPART_OPTIONS, CURLUE_NO_OPTIONS, "options",
+                     false);
+  get_and_print_json(&obj, h, CURLUPART_HOST, CURLUE_NO_HOST, "host", false);
+  get_and_print_json(&obj, h, CURLUPART_PORT, CURLUE_NO_PORT, "port", false);
+  get_and_print_json(&obj, h, CURLUPART_PATH, -1, "path", false);
+  get_and_print_json(&obj, h, CURLUPART_QUERY, CURLUE_NO_QUERY, "query", false);
   get_and_print_json(&obj, h, CURLUPART_FRAGMENT, CURLUE_NO_FRAGMENT,
-                     "fragment");
-  get_and_print_json(&obj, h, CURLUPART_ZONEID, -1, "zone_id");
+                     "fragment", false);
+  get_and_print_json(&obj, h, CURLUPART_ZONEID, -1, "zone_id", true);
 
   char *json_str = finalize_json_object(&obj);
   printf("JSON:%s\n", json_str);
@@ -262,17 +268,17 @@ int main(int argc, char *argv[]) {
     goto end;
   }
 
-  get_and_print(h, CURLUPART_URL, -1, "roundtripped");
-  get_and_print(h, CURLUPART_SCHEME, CURLUE_NO_SCHEME, "scheme");
-  get_and_print(h, CURLUPART_USER, CURLUE_NO_USER, "user");
-  get_and_print(h, CURLUPART_PASSWORD, CURLUE_NO_PASSWORD, "password");
-  get_and_print(h, CURLUPART_OPTIONS, CURLUE_NO_OPTIONS, "options");
-  get_and_print(h, CURLUPART_HOST, CURLUE_NO_HOST, "host");
-  get_and_print(h, CURLUPART_PORT, CURLUE_NO_PORT, "port");
-  get_and_print(h, CURLUPART_PATH, -1, "path");
-  get_and_print(h, CURLUPART_QUERY, CURLUE_NO_QUERY, "query");
-  get_and_print(h, CURLUPART_FRAGMENT, CURLUE_NO_FRAGMENT, "fragment");
-  get_and_print(h, CURLUPART_ZONEID, -1, "zone id");
+  get_and_print(h, CURLUPART_URL, -1, "roundtripped", false);
+  get_and_print(h, CURLUPART_SCHEME, CURLUE_NO_SCHEME, "scheme", false);
+  get_and_print(h, CURLUPART_USER, CURLUE_NO_USER, "user", false);
+  get_and_print(h, CURLUPART_PASSWORD, CURLUE_NO_PASSWORD, "password", false);
+  get_and_print(h, CURLUPART_OPTIONS, CURLUE_NO_OPTIONS, "options", false);
+  get_and_print(h, CURLUPART_HOST, CURLUE_NO_HOST, "host", false);
+  get_and_print(h, CURLUPART_PORT, CURLUE_NO_PORT, "port", false);
+  get_and_print(h, CURLUPART_PATH, -1, "path", false);
+  get_and_print(h, CURLUPART_QUERY, CURLUE_NO_QUERY, "query", false);
+  get_and_print(h, CURLUPART_FRAGMENT, CURLUE_NO_FRAGMENT, "fragment", false);
+  get_and_print(h, CURLUPART_ZONEID, -1, "zone id", true);
 
   print_json(h);
 
