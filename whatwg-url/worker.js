@@ -1,11 +1,5 @@
-if (!globalThis.SharedArrayBuffer) {
-  globalThis.SharedArrayBuffer =
-    new WebAssembly.Memory({ shared:true, initial:1, maximum:1 }).buffer.constructor;
-}
-
-importScripts("../common/worker_common.js");
-
-importScripts("https://jsdom.github.io/whatwg-url/whatwg-url.js");
+import "../common/worker_common.js";
+import whatwgURL from "https://jsdom.github.io/whatwg-url/whatwg-url.mjs";
 
 postMessage({
   id: nextID++,

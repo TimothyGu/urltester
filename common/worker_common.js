@@ -13,7 +13,7 @@ const canSerializeError = (() => {
   }
 })();
 
-function serializeError(err) {
+globalThis.serializeError = (err) => {
   if (!(err instanceof Error) || canSerializeError) {
     return err;
   } else {

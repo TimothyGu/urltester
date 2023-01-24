@@ -1,9 +1,10 @@
 "use strict";
 
 class URLParser extends EventTarget {
-  constructor(href) {
+  constructor(href, options) {
     super();
     this.href = href;
+    this.options = options;
     this.nextID = 1;
     this.start();
     this.givenUp = false;
@@ -22,7 +23,7 @@ class URLParser extends EventTarget {
       this.dispatchEvent(new CustomEvent("initialized"));
     });
 
-    this.worker = new Worker(this.href);
+    this.worker = new Worker(this.href, this.options);
     this.promiseResolvers = new Map();
     this.worker.onmessage = e => {
       const payload = e.data;
@@ -127,14 +128,14 @@ for (const prop of props) {
 const parsersByHref = new Map();
 
 class ParserRenderer {
-  constructor(name, href, index, options, tags) {
+  constructor(name, href, workerOptions, index, options, tags) {
     this.name = name;
     this.href = href;
     this.options = options;
     this.tags = tags;
     this.parser = parsersByHref.get(href);
     if (!this.parser) {
-      this.parser = new URLParser(href);
+      this.parser = new URLParser(href, workerOptions);
       parsersByHref.set(href, this.parser);
     }
 
@@ -265,6 +266,7 @@ const parsers = [
   {
     name: "whatwg-url",
     worker: "whatwg-url/worker.js",
+    workerOptions: { type: "module" },
     tags: ["js", "idna", "whatwg", "resolvepath"],
   },
   {
@@ -276,8 +278,8 @@ const parsers = [
 ];
 
 const renders = [];
-for (const { name, worker, options, tags } of parsers) {
-  renders.push(new ParserRenderer(name, worker, renders.length, options, tags));
+for (const { name, worker, workerOptions, options, tags } of parsers) {
+  renders.push(new ParserRenderer(name, worker, workerOptions, renders.length, options, tags));
 }
 
 async function runAndUpdate({ firstTime = false, userInteraction = false } = {}) {
