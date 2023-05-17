@@ -8,7 +8,7 @@ wasm_exec.js:
 
 main.wasm: $(wildcard *.go)
 	GOOS=js GOARCH=wasm go build -o temp.wasm .
-	wasm-opt -O temp.wasm -o $@
+	wasm-opt -O temp.wasm --enable-bulk-memory -o $@
 
 .PHONY: clean
 clean:

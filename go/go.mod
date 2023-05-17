@@ -1,9 +1,9 @@
 module go.timothygu.me/net/urltester/url
 
-go 1.19
+go 1.20
 
-// See https://github.com/golang/go/blob/go1.19.4/src/go.mod
+// See https://github.com/golang/go/blob/go1.20.3/src/go.mod
 
-require golang.org/x/net v0.0.0-20220907013720-d52c520e3766
+require golang.org/x/net v0.4.1-0.20230214201333-88ed8ca3307d
 
-require golang.org/x/text v0.3.8-0.20220509174342-b4bca84b0361 // indirect
+require golang.org/x/text v0.5.0 // indirect
