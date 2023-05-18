@@ -1,5 +1,5 @@
 import "../common/worker_common.js";
-import { loadPyodide, version as PYODIDE_VERSION } from "https://cdn.jsdelivr.net/pyodide/v0.22.0/full/pyodide.mjs";
+import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.mjs";
 
 let pyParse;
 let requestsParse;
