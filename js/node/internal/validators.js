@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v18.1.0/lib/internal/validators.js
+// From https://github.com/nodejs/node/raw/v20.2.0/lib/internal/validators.js
 
 'use strict';
 
@@ -8,6 +8,14 @@ const {
   }
 } = require('./errors');
 
+/**
+ * @callback validateString
+ * @param {*} value
+ * @param {string} name
+ * @returns {asserts value is string}
+ */
+
+/** @type {validateString} */
 function validateString(value, name) {
   if (typeof value !== 'string')
     throw new ERR_INVALID_ARG_TYPE(name, 'string', value);

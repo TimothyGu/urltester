@@ -3,7 +3,7 @@ import nodeURL from "./node/url.js"
 
 importScripts("../common/worker_common.js");
 
-const nodeURLVersion = "18.1.0";
+const nodeURLVersion = "20.2.0";
 const browserVersion = (() => {
   const ua = navigator.userAgent;
   let match = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];

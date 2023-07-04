@@ -1,4 +1,4 @@
-// Copied from https://github.com/nodejs/node/raw/v17.0.1/lib/internal/errors.js
+// Copied from https://github.com/nodejs/node/raw/v20.2.0/lib/internal/errors.js
 
 /* eslint node-core/documented-errors: "error" */
 /* eslint node-core/alphabetize-errors: "error" */
@@ -17,14 +17,14 @@ const {
   ArrayPrototypeIncludes,
   ArrayPrototypeIndexOf,
   ArrayPrototypeJoin,
-  ArrayPrototypePop,
   ArrayPrototypePush,
+  ArrayPrototypeSlice,
   ArrayPrototypeSplice,
   ArrayPrototypeUnshift,
   Error,
   ObjectDefineProperties,
   ReflectApply,
-  RegExpPrototypeTest,
+  RegExpPrototypeExec,
   SafeMap,
   StringPrototypeEndsWith,
   StringPrototypeIncludes,
@@ -133,6 +133,44 @@ function getMessage(key, args, self) {
   return ReflectApply(util.format, null, args);
 }
 
+/**
+ * Determine the specific type of a value for type-mismatch errors.
+ * @param {*} value
+ * @returns {string}
+ */
+function determineSpecificType(value) {
+  if (value == null) {
+    return '' + value;
+  }
+  if (typeof value === 'function' && value.name) {
+    return `function ${value.name}`;
+  }
+  if (typeof value === 'object') {
+    if (value.constructor?.name) {
+      return `an instance of ${value.constructor.name}`;
+    }
+    return `${lazyInternalUtilInspect().inspect(value, { depth: -1 })}`;
+  }
+  let inspected = lazyInternalUtilInspect()
+    .inspect(value, { colors: false });
+  if (inspected.length > 28) { inspected = `${StringPrototypeSlice(inspected, 0, 25)}...`; }
+
+  return `type ${typeof value} (${inspected})`;
+}
+
+/**
+ * Create a list string in the form like 'A and B' or 'A, B, ..., and Z'.
+ * We cannot use Intl.ListFormat because it's not available in
+ * --without-intl builds.
+ * @param {string[]} array An array of strings.
+ * @param {string} [type] The list type to be inserted before the last element.
+ * @returns {string}
+ */
+function formatList(array, type = 'and') {
+  return array.length < 3 ? ArrayPrototypeJoin(array, ` ${type} `) :
+    `${ArrayPrototypeJoin(ArrayPrototypeSlice(array, 0, -1), ', ')}, ${type} ${array[array.length - 1]}`;
+}
+
 module.exports = {
   codes,
   getMessage,
@@ -171,7 +209,7 @@ E('ERR_INVALID_ARG_TYPE',
              'All expected entries have to be of type string');
       if (ArrayPrototypeIncludes(kTypes, value)) {
         ArrayPrototypePush(types, StringPrototypeToLowerCase(value));
-      } else if (RegExpPrototypeTest(classRegExp, value)) {
+      } else if (RegExpPrototypeExec(classRegExp, value) !== null) {
         ArrayPrototypePush(instances, value);
       } else {
         assert(value !== 'object',
@@ -191,39 +229,20 @@ E('ERR_INVALID_ARG_TYPE',
     }
 
     if (types.length > 0) {
-      if (types.length > 2) {
-        const last = ArrayPrototypePop(types);
-        msg += `one of type ${ArrayPrototypeJoin(types, ', ')}, or ${last}`;
-      } else if (types.length === 2) {
-        msg += `one of type ${types[0]} or ${types[1]}`;
-      } else {
-        msg += `of type ${types[0]}`;
-      }
+      msg += `${types.length > 1 ? 'one of type' : 'of type'} ${formatList(types, 'or')}`;
       if (instances.length > 0 || other.length > 0)
         msg += ' or ';
     }
 
     if (instances.length > 0) {
-      if (instances.length > 2) {
-        const last = ArrayPrototypePop(instances);
-        msg +=
-          `an instance of ${ArrayPrototypeJoin(instances, ', ')}, or ${last}`;
-      } else {
-        msg += `an instance of ${instances[0]}`;
-        if (instances.length === 2) {
-          msg += ` or ${instances[1]}`;
-        }
-      }
+      msg += `an instance of ${formatList(instances, 'or')}`;
       if (other.length > 0)
         msg += ' or ';
     }
 
     if (other.length > 0) {
-      if (other.length > 2) {
-        const last = ArrayPrototypePop(other);
-        msg += `one of ${ArrayPrototypeJoin(other, ', ')}, or ${last}`;
-      } else if (other.length === 2) {
-        msg += `one of ${other[0]} or ${other[1]}`;
+      if (other.length > 1) {
+        msg += `one of ${formatList(other, 'or')}`;
       } else {
         if (StringPrototypeToLowerCase(other[0]) !== other[0])
           msg += 'an ';
@@ -231,23 +250,8 @@ E('ERR_INVALID_ARG_TYPE',
       }
     }
 
-    if (actual == null) {
-      msg += `. Received ${actual}`;
-    } else if (typeof actual === 'function' && actual.name) {
-      msg += `. Received function ${actual.name}`;
-    } else if (typeof actual === 'object') {
-      if (actual.constructor?.name) {
-        msg += `. Received an instance of ${actual.constructor.name}`;
-      } else {
-        const inspected = util.inspect(actual, { depth: -1 });
-        msg += `. Received ${inspected}`;
-      }
-    } else {
-      let inspected = util.inspect(actual, { colors: false });
-      if (inspected.length > 25)
-        inspected = `${StringPrototypeSlice(inspected, 0, 25)}...`;
-      msg += `. Received type ${typeof actual} (${inspected})`;
-    }
+    msg += `. Received ${determineSpecificType(actual)}`;
+
     return msg;
   }, TypeError);
 E('ERR_INVALID_URI', 'URI malformed', URIError);

@@ -301,8 +301,10 @@
         ArrayPrototypeJoin: uncurryThis(Array.prototype.join),
         ArrayPrototypePop: uncurryThis(Array.prototype.pop),
         ArrayPrototypePush: uncurryThis(Array.prototype.push),
+        ArrayPrototypeSlice: uncurryThis(Array.prototype.slice),
         ArrayPrototypeSplice: uncurryThis(Array.prototype.splice),
         ArrayPrototypeUnshift: uncurryThis(Array.prototype.unshift),
+        Boolean,
         Error,
         Int8Array,
         MathAbs: Math.abs,
@@ -313,6 +315,7 @@
         ObjectDefineProperty: Object.defineProperty,
         ObjectKeys: Object.keys,
         ReflectApply,
+        RegExpPrototypeExec: uncurryThis(RegExp.prototype.exec),
         RegExpPrototypeTest: uncurryThis(RegExp.prototype.test),
         SafeMap: Map,
         SafeSet: Set,
@@ -2507,14 +2510,14 @@
         ArrayPrototypeIncludes,
         ArrayPrototypeIndexOf,
         ArrayPrototypeJoin,
-        ArrayPrototypePop,
         ArrayPrototypePush,
+        ArrayPrototypeSlice,
         ArrayPrototypeSplice,
         ArrayPrototypeUnshift,
         Error: Error2,
         ObjectDefineProperties,
         ReflectApply,
-        RegExpPrototypeTest,
+        RegExpPrototypeExec,
         SafeMap,
         StringPrototypeEndsWith,
         StringPrototypeIncludes,
@@ -2603,6 +2606,28 @@
         ArrayPrototypeUnshift(args, msg);
         return ReflectApply(util.format, null, args);
       }
+      function determineSpecificType(value) {
+        if (value == null) {
+          return "" + value;
+        }
+        if (typeof value === "function" && value.name) {
+          return `function ${value.name}`;
+        }
+        if (typeof value === "object") {
+          if (value.constructor?.name) {
+            return `an instance of ${value.constructor.name}`;
+          }
+          return `${lazyInternalUtilInspect().inspect(value, { depth: -1 })}`;
+        }
+        let inspected = lazyInternalUtilInspect().inspect(value, { colors: false });
+        if (inspected.length > 28) {
+          inspected = `${StringPrototypeSlice(inspected, 0, 25)}...`;
+        }
+        return `type ${typeof value} (${inspected})`;
+      }
+      function formatList(array, type = "and") {
+        return array.length < 3 ? ArrayPrototypeJoin(array, ` ${type} `) : `${ArrayPrototypeJoin(ArrayPrototypeSlice(array, 0, -1), ", ")}, ${type} ${array[array.length - 1]}`;
+      }
       module.exports = {
         codes,
         getMessage
@@ -2637,7 +2662,7 @@ ${suffix}`;
             );
             if (ArrayPrototypeIncludes(kTypes, value)) {
               ArrayPrototypePush(types2, StringPrototypeToLowerCase(value));
-            } else if (RegExpPrototypeTest(classRegExp, value)) {
+            } else if (RegExpPrototypeExec(classRegExp, value) !== null) {
               ArrayPrototypePush(instances, value);
             } else {
               assert(
@@ -2655,59 +2680,25 @@ ${suffix}`;
             }
           }
           if (types2.length > 0) {
-            if (types2.length > 2) {
-              const last = ArrayPrototypePop(types2);
-              msg += `one of type ${ArrayPrototypeJoin(types2, ", ")}, or ${last}`;
-            } else if (types2.length === 2) {
-              msg += `one of type ${types2[0]} or ${types2[1]}`;
-            } else {
-              msg += `of type ${types2[0]}`;
-            }
+            msg += `${types2.length > 1 ? "one of type" : "of type"} ${formatList(types2, "or")}`;
             if (instances.length > 0 || other.length > 0)
               msg += " or ";
           }
           if (instances.length > 0) {
-            if (instances.length > 2) {
-              const last = ArrayPrototypePop(instances);
-              msg += `an instance of ${ArrayPrototypeJoin(instances, ", ")}, or ${last}`;
-            } else {
-              msg += `an instance of ${instances[0]}`;
-              if (instances.length === 2) {
-                msg += ` or ${instances[1]}`;
-              }
-            }
+            msg += `an instance of ${formatList(instances, "or")}`;
             if (other.length > 0)
               msg += " or ";
           }
           if (other.length > 0) {
-            if (other.length > 2) {
-              const last = ArrayPrototypePop(other);
-              msg += `one of ${ArrayPrototypeJoin(other, ", ")}, or ${last}`;
-            } else if (other.length === 2) {
-              msg += `one of ${other[0]} or ${other[1]}`;
+            if (other.length > 1) {
+              msg += `one of ${formatList(other, "or")}`;
             } else {
               if (StringPrototypeToLowerCase(other[0]) !== other[0])
                 msg += "an ";
               msg += `${other[0]}`;
             }
           }
-          if (actual == null) {
-            msg += `. Received ${actual}`;
-          } else if (typeof actual === "function" && actual.name) {
-            msg += `. Received function ${actual.name}`;
-          } else if (typeof actual === "object") {
-            if (actual.constructor?.name) {
-              msg += `. Received an instance of ${actual.constructor.name}`;
-            } else {
-              const inspected = util.inspect(actual, { depth: -1 });
-              msg += `. Received ${inspected}`;
-            }
-          } else {
-            let inspected = util.inspect(actual, { colors: false });
-            if (inspected.length > 25)
-              inspected = `${StringPrototypeSlice(inspected, 0, 25)}...`;
-            msg += `. Received type ${typeof actual} (${inspected})`;
-          }
+          msg += `. Received ${determineSpecificType(actual)}`;
           return msg;
         },
         TypeError2
@@ -4954,7 +4945,6 @@ ${suffix}`;
         Int8Array: Int8Array2,
         MathAbs,
         NumberIsFinite,
-        ObjectCreate,
         ObjectKeys,
         String: String2,
         StringPrototypeCharCodeAt,
@@ -5534,7 +5524,7 @@ ${suffix}`;
         }
       }
       function parse3(qs, sep, eq, options) {
-        const obj = ObjectCreate(null);
+        const obj = { __proto__: null };
         if (typeof qs !== "string" || qs.length === 0) {
           return obj;
         }
@@ -5808,8 +5798,8 @@ ${suffix}`;
       init_shims();
       var primordials = require_primordials();
       var {
+        Boolean: Boolean2,
         Int8Array: Int8Array2,
-        ObjectCreate,
         ObjectKeys,
         SafeSet,
         StringPrototypeCharCodeAt,
@@ -5822,7 +5812,10 @@ ${suffix}`;
         ERR_INVALID_ARG_TYPE,
         ERR_INVALID_URL
       } = require_errors().codes;
-      var { validateString } = require_validators();
+      var {
+        validateString,
+        validateObject
+      } = require_validators();
       var { spliceOne } = require_util2();
       function Url() {
         this.protocol = null;
@@ -5883,16 +5876,6 @@ ${suffix}`;
         CHAR_LEFT_CURLY_BRACKET,
         CHAR_RIGHT_CURLY_BRACKET,
         CHAR_QUESTION_MARK,
-        CHAR_LOWERCASE_A,
-        CHAR_LOWERCASE_Z,
-        CHAR_UPPERCASE_A,
-        CHAR_UPPERCASE_Z,
-        CHAR_DOT,
-        CHAR_0,
-        CHAR_9,
-        CHAR_HYPHEN_MINUS,
-        CHAR_PLUS,
-        CHAR_UNDERSCORE,
         CHAR_DOUBLE_QUOTE,
         CHAR_SINGLE_QUOTE,
         CHAR_PERCENT,
@@ -5901,7 +5884,8 @@ ${suffix}`;
         CHAR_CIRCUMFLEX_ACCENT,
         CHAR_GRAVE_ACCENT,
         CHAR_VERTICAL_LINE,
-        CHAR_AT
+        CHAR_AT,
+        CHAR_COLON
       } = require_constants();
       function urlParse(url, parseQueryString, slashesDenoteHost) {
         if (url instanceof Url)
@@ -5991,7 +5975,7 @@ ${suffix}`;
               }
             } else if (parseQueryString) {
               this.search = null;
-              this.query = ObjectCreate(null);
+              this.query = { __proto__: null };
             }
             return this;
           }
@@ -6021,6 +6005,9 @@ ${suffix}`;
               case CHAR_TAB:
               case CHAR_LINE_FEED:
               case CHAR_CARRIAGE_RETURN:
+                rest = rest.slice(0, i) + rest.slice(i + 1);
+                i -= 1;
+                break;
               case CHAR_SPACE:
               case CHAR_DOUBLE_QUOTE:
               case CHAR_PERCENT:
@@ -6070,7 +6057,7 @@ ${suffix}`;
           const hostname = this.hostname;
           const ipv6Hostname = isIpv6Hostname(hostname);
           if (!ipv6Hostname) {
-            rest = getHostname(this, rest, hostname);
+            rest = getHostname(this, rest, hostname, url);
           }
           if (this.hostname.length > hostnameMaxLen) {
             this.hostname = "";
@@ -6127,7 +6114,7 @@ ${suffix}`;
           }
         } else if (parseQueryString) {
           this.search = null;
-          this.query = ObjectCreate(null);
+          this.query = { __proto__: null };
         }
         const useQuestionIdx = questionIdx !== -1 && (hashIdx === -1 || questionIdx < hashIdx);
         const firstIdx = useQuestionIdx ? questionIdx : hashIdx;
@@ -6148,10 +6135,10 @@ ${suffix}`;
         this.href = this.format();
         return this;
       };
-      function getHostname(self2, rest, hostname) {
+      function getHostname(self2, rest, hostname, url) {
         for (let i = 0; i < hostname.length; ++i) {
           const code = hostname.charCodeAt(i);
-          const isValid = code >= CHAR_LOWERCASE_A && code <= CHAR_LOWERCASE_Z || code === CHAR_DOT || code >= CHAR_UPPERCASE_A && code <= CHAR_UPPERCASE_Z || code >= CHAR_0 && code <= CHAR_9 || code === CHAR_HYPHEN_MINUS || code === CHAR_PLUS || code === CHAR_UNDERSCORE || code > 127;
+          const isValid = code !== CHAR_FORWARD_SLASH && code !== CHAR_BACKWARD_SLASH && code !== CHAR_HASH && code !== CHAR_QUESTION_MARK && code !== CHAR_COLON;
           if (!isValid) {
             self2.hostname = hostname.slice(0, i);
             return `/${hostname.slice(i)}${rest}`;
@@ -6327,14 +6314,8 @@ ${suffix}`;
             ["Object", "string"],
             urlObject
           );
-        } else if (!(urlObject instanceof Url)) {
-          const format = (
-            //urlObject[formatSymbol];
-            void 0
-          );
-          return format ? format.call(urlObject, options) : Url.prototype.format.call(urlObject);
         }
-        return urlObject.format();
+        return Url.prototype.format.call(urlObject);
       }
       var noEscapeAuth = new Int8Array2([
         0,
@@ -6775,6 +6756,16 @@ ${suffix}`;
         resolve: urlResolve,
         resolveObject: urlResolveObject,
         format: urlFormat
+        // // WHATWG API
+        // URL,
+        // URLSearchParams,
+        // domainToASCII,
+        // domainToUnicode,
+        //
+        // // Utilities
+        // pathToFileURL,
+        // fileURLToPath,
+        // urlToHttpOptions,
       };
     }
   });
@@ -7655,7 +7646,7 @@ ${suffix}`;
   // worker-src.js
   var import_url = __toESM(require_url());
   importScripts("../common/worker_common.js");
-  var nodeURLVersion = "18.1.0";
+  var nodeURLVersion = "20.2.0";
   var browserVersion = (() => {
     const ua = navigator.userAgent;
     let match = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];

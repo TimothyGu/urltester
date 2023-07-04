@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v18.1.0/lib/url.js
+// From https://github.com/nodejs/node/raw/v20.2.0/lib/url.js
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -26,8 +26,8 @@
 const primordials = require('./internal/primordials');
 
 const {
+  Boolean,
   Int8Array,
-  ObjectCreate,
   ObjectKeys,
   SafeSet,
   StringPrototypeCharCodeAt,
@@ -42,11 +42,29 @@ const {
   ERR_INVALID_ARG_TYPE,
   ERR_INVALID_URL,
 } = require('./internal/errors').codes;
-const { validateString } = require('./internal/validators');
+const {
+  validateString,
+  validateObject,
+} = require('./internal/validators');
 
 // This ensures setURLConstructor() is called before the native
 // URL::ToObject() method is used.
 const { spliceOne } = require('./internal/util');
+
+// WHATWG URL implementation provided by internal/url
+// const {
+//   URL,
+//   URLSearchParams,
+//   domainToASCII,
+//   domainToUnicode,
+//   fileURLToPath,
+//   pathToFileURL,
+//   urlToHttpOptions,
+// } = require('internal/url');
+//
+// const bindingUrl = internalBinding('url');
+//
+// const { getOptionValue } = require('internal/options');
 
 // Original url.parse() API
 
@@ -120,16 +138,6 @@ const {
   CHAR_LEFT_CURLY_BRACKET,
   CHAR_RIGHT_CURLY_BRACKET,
   CHAR_QUESTION_MARK,
-  CHAR_LOWERCASE_A,
-  CHAR_LOWERCASE_Z,
-  CHAR_UPPERCASE_A,
-  CHAR_UPPERCASE_Z,
-  CHAR_DOT,
-  CHAR_0,
-  CHAR_9,
-  CHAR_HYPHEN_MINUS,
-  CHAR_PLUS,
-  CHAR_UNDERSCORE,
   CHAR_DOUBLE_QUOTE,
   CHAR_SINGLE_QUOTE,
   CHAR_PERCENT,
@@ -139,9 +147,23 @@ const {
   CHAR_GRAVE_ACCENT,
   CHAR_VERTICAL_LINE,
   CHAR_AT,
+  CHAR_COLON,
 } = require('./internal/constants');
 
+// let urlParseWarned = false;
+
 function urlParse(url, parseQueryString, slashesDenoteHost) {
+  // if (!urlParseWarned && getOptionValue('--pending-deprecation')) {
+  //   urlParseWarned = true;
+  //   process.emitWarning(
+  //     '`url.parse()` behavior is not standardized and prone to ' +
+  //     'errors that have security implications. Use the WHATWG URL API ' +
+  //     'instead. CVEs are not issued for `url.parse()` vulnerabilities.',
+  //     'DeprecationWarning',
+  //     'DEP0169',
+  //   );
+  // }
+
   if (url instanceof Url) return url;
 
   const urlObject = new Url();
@@ -268,7 +290,7 @@ Url.prototype.parse = function parse(url, parseQueryString, slashesDenoteHost) {
         }
       } else if (parseQueryString) {
         this.search = null;
-        this.query = ObjectCreate(null);
+        this.query = { __proto__: null };
       }
       return this;
     }
@@ -320,6 +342,10 @@ Url.prototype.parse = function parse(url, parseQueryString, slashesDenoteHost) {
         case CHAR_TAB:
         case CHAR_LINE_FEED:
         case CHAR_CARRIAGE_RETURN:
+          // WHATWG URL removes tabs, newlines, and carriage returns. Let's do that too.
+          rest = rest.slice(0, i) + rest.slice(i + 1);
+          i -= 1;
+          break;
         case CHAR_SPACE:
         case CHAR_DOUBLE_QUOTE:
         case CHAR_PERCENT:
@@ -384,7 +410,7 @@ Url.prototype.parse = function parse(url, parseQueryString, slashesDenoteHost) {
 
     // validate a little.
     if (!ipv6Hostname) {
-      rest = getHostname(this, rest, hostname);
+      rest = getHostname(this, rest, hostname, url);
     }
 
     if (this.hostname.length > hostnameMaxLen) {
@@ -474,7 +500,7 @@ Url.prototype.parse = function parse(url, parseQueryString, slashesDenoteHost) {
   } else if (parseQueryString) {
     // No query string, but parseQueryString still requested
     this.search = null;
-    this.query = ObjectCreate(null);
+    this.query = { __proto__: null };
   }
 
   const useQuestionIdx =
@@ -503,20 +529,25 @@ Url.prototype.parse = function parse(url, parseQueryString, slashesDenoteHost) {
   return this;
 };
 
-function getHostname(self, rest, hostname) {
+// let warnInvalidPort = true;
+function getHostname(self, rest, hostname, url) {
   for (let i = 0; i < hostname.length; ++i) {
     const code = hostname.charCodeAt(i);
-    const isValid = (code >= CHAR_LOWERCASE_A && code <= CHAR_LOWERCASE_Z) ||
-                    code === CHAR_DOT ||
-                    (code >= CHAR_UPPERCASE_A && code <= CHAR_UPPERCASE_Z) ||
-                    (code >= CHAR_0 && code <= CHAR_9) ||
-                    code === CHAR_HYPHEN_MINUS ||
-                    code === CHAR_PLUS ||
-                    code === CHAR_UNDERSCORE ||
-                    code > 127;
+    const isValid = (code !== CHAR_FORWARD_SLASH &&
+                     code !== CHAR_BACKWARD_SLASH &&
+                     code !== CHAR_HASH &&
+                     code !== CHAR_QUESTION_MARK &&
+                     code !== CHAR_COLON);
 
-    // Invalid host character
     if (!isValid) {
+      // If leftover starts with :, then it represents an invalid port.
+      // But url.parse() is lenient about it for now.
+      // Issue a warning and continue.
+      // if (warnInvalidPort && code === CHAR_COLON) {
+      //   const detail = `The URL ${url} is invalid. Future versions of Node.js will throw an error.`;
+      //   process.emitWarning(detail, 'DeprecationWarning', 'DEP0170');
+      //   warnInvalidPort = false;
+      // }
       self.hostname = hostname.slice(0, i);
       return `/${hostname.slice(i)}${rest}`;
     }
@@ -580,14 +611,36 @@ function urlFormat(urlObject, options) {
   } else if (typeof urlObject !== 'object' || urlObject === null) {
     throw new ERR_INVALID_ARG_TYPE('urlObject',
                                    ['Object', 'string'], urlObject);
-  } else if (!(urlObject instanceof Url)) {
-    const format = //urlObject[formatSymbol];
-      undefined;
-    return format ?
-      format.call(urlObject, options) :
-      Url.prototype.format.call(urlObject);
+  // } else if (urlObject instanceof URL) {
+  //   let fragment = true;
+  //   let unicode = false;
+  //   let search = true;
+  //   let auth = true;
+  //
+  //   if (options) {
+  //     validateObject(options, 'options');
+  //
+  //     if (options.fragment != null) {
+  //       fragment = Boolean(options.fragment);
+  //     }
+  //
+  //     if (options.unicode != null) {
+  //       unicode = Boolean(options.unicode);
+  //     }
+  //
+  //     if (options.search != null) {
+  //       search = Boolean(options.search);
+  //     }
+  //
+  //     if (options.auth != null) {
+  //       auth = Boolean(options.auth);
+  //     }
+  //   }
+  //
+  //   return bindingUrl.format(urlObject.href, fragment, unicode, search, auth);
   }
-  return urlObject.format();
+
+  return Url.prototype.format.call(urlObject);
 }
 
 // These characters do not need escaping:
@@ -1003,4 +1056,15 @@ module.exports = {
   resolve: urlResolve,
   resolveObject: urlResolveObject,
   format: urlFormat,
+
+  // // WHATWG API
+  // URL,
+  // URLSearchParams,
+  // domainToASCII,
+  // domainToUnicode,
+  //
+  // // Utilities
+  // pathToFileURL,
+  // fileURLToPath,
+  // urlToHttpOptions,
 };

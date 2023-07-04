@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v18.1.0/lib/querystring.js
+// From https://github.com/nodejs/node/raw/v20.2.0/lib/querystring.js
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -31,7 +31,6 @@ const {
   Int8Array,
   MathAbs,
   NumberIsFinite,
-  ObjectCreate,
   ObjectKeys,
   String,
   StringPrototypeCharCodeAt,
@@ -43,7 +42,7 @@ const { Buffer } = require('buffer');
 const {
   encodeStr,
   hexTable,
-  isHexTable
+  isHexTable,
 } = require('./internal/querystring');
 const QueryString = module.exports = {
   unescapeBuffer,
@@ -57,7 +56,7 @@ const QueryString = module.exports = {
   encode: stringify,
 
   parse,
-  decode: parse
+  decode: parse,
 };
 
 const unhexTable = new Int8Array([
@@ -318,7 +317,7 @@ function addKeyVal(obj, key, value, keyEncoded, valEncoded, decode) {
  * @returns {Record<string, string | string[]>}
  */
 function parse(qs, sep, eq, options) {
-  const obj = ObjectCreate(null);
+  const obj = { __proto__: null };
 
   if (typeof qs !== 'string' || qs.length === 0) {
     return obj;

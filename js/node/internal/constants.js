@@ -1,4 +1,4 @@
-// From https://github.com/nodejs/node/raw/v18.1.0/lib/internal/constants.js.
+// From https://github.com/nodejs/node/raw/v20.2.0/lib/internal/constants.js
 
 'use strict';
 
@@ -54,5 +54,5 @@ module.exports = {
   CHAR_0: 48, /* 0 */
   CHAR_9: 57, /* 9 */
 
-  EOL: isWindows ? '\r\n' : '\n'
+  EOL: isWindows ? '\r\n' : '\n',
 };
