@@ -11,4 +11,4 @@ clean:
 
 .PHONY: format
 format:
-	rustfmt .
+	cargo fmt --all
