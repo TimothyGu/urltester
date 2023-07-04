@@ -1,5 +1,5 @@
 import "../common/worker_common.js";
-import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.mjs";
+import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.23.3/full/pyodide.mjs";
 
 let pyParse;
 let requestsParse;
