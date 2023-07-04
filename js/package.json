@@ -10,9 +10,9 @@
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "spec-url": "^2.3.3-dev",
-    "tr46": "^3.0.0"
+    "tr46": "^4.1.1"
   },
   "devDependencies": {
-    "esbuild": "^0.14.39"
+    "esbuild": "^0.18.11"
   }
 }
